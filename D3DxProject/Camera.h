@@ -40,14 +40,14 @@ protected:
 	D3D12_VIEWPORT m_d3dViewport;
 	D3D12_RECT m_d3dScissorRect;
 	//카메라를 가지고 있는 플레이어에 대한 포인터이다. 
-	CPlayer *m_pPlayer = NULL;
+	CPlayer* m_pPlayer = NULL;
 public:
 	CCamera();
 	CCamera(CCamera* pCamera);
 	virtual ~CCamera();
 	//카메라의 정보를 셰이더 프로그램에게 전달하기 위한 상수 버퍼를 생성하고 갱신한다. 
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
-	*pd3dCommandList);
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
+		* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	//카메라 변환 행렬을 생성한다. void GenerateViewMatrix();
@@ -91,11 +91,11 @@ public:
 		m_xmf3Position.y += xmf3Shift.y;
 		m_xmf3Position.z += xmf3Shift.z;
 	}
-//카메라를 x-축, y-축, z-축으로 회전하는 가상함수이다. 
+	//카메라를 x-축, y-축, z-축으로 회전하는 가상함수이다. 
 	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f) { }
-//카메라의 이동, 회전에 따라 카메라의 정보를 갱신하는 가상함수이다. 
+	//카메라의 이동, 회전에 따라 카메라의 정보를 갱신하는 가상함수이다. 
 	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed) { }
-//3인칭 카메라에서 카메라가 바라보는 지점을 설정한다. 일반적으로 플레이어를 바라보도록 설정한다.
+	//3인칭 카메라에서 카메라가 바라보는 지점을 설정한다. 일반적으로 플레이어를 바라보도록 설정한다.
 	virtual void SetLookAt(XMFLOAT3& xmf3LookAt) { }
 };
 

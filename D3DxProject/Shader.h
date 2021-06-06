@@ -68,17 +68,17 @@ class CObjectsShader : public CShader
 public:
 	CObjectsShader();
 	virtual ~CObjectsShader();
-	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		* pd3dCommandList);
 	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void ReleaseObjects();
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob * *ppd3dShaderBlob);
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob * *ppd3dShaderBlob);
-	virtual void CreateShader(ID3D12Device * pd3dDevice, ID3D12RootSignature
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature
 		* pd3dGraphicsRootSignature);
 	virtual void ReleaseUploadBuffers();
-	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * pCamera);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	//CGameObject** Getm_ppObjects() { return m_ppObjects; }
 protected:
 	CGameObject** m_ppObjects = NULL;
@@ -104,6 +104,6 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 protected:
 	//인스턴스 데이터를 포함하는 버퍼와 포인터이다. 
-	ID3D12Resource *m_pd3dcbGameObjects = NULL;
+	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
 };

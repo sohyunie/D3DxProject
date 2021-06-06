@@ -152,7 +152,7 @@ namespace Vector4
 	inline XMFLOAT4 Add(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
 	{
 		XMFLOAT4 xmf4Result;
-		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) +	XMLoadFloat4(&xmf4Vector2));
+		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
 		return(xmf4Result);
 	}
 	inline XMFLOAT4 Multiply(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)

@@ -360,10 +360,10 @@ void CInstancingShader::CreateShaderVariables(ID3D12Device* pd3dDevice,
 {
 	//인스턴스 정보를 저장할 정점 버퍼를 업로드 힙 유형으로 생성한다.
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL,
-	sizeof(VS_VB_INSTANCE)* m_nObjects, D3D12_HEAP_TYPE_UPLOAD,
+		sizeof(VS_VB_INSTANCE) * m_nObjects, D3D12_HEAP_TYPE_UPLOAD,
 		D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
-		//정점 버퍼(업로드 힙)에 대한 포인터를 저장한다.
-	m_pd3dcbGameObjects->Map(0, NULL, (void **)&m_pcbMappedGameObjects);
+	//정점 버퍼(업로드 힙)에 대한 포인터를 저장한다.
+	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 }
 void CInstancingShader::ReleaseShaderVariables()
 {
@@ -414,8 +414,8 @@ void CInstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 		}
 	}
 	//인스턴싱을 사용하여 렌더링하기 위하여 하나의 게임 객체만 메쉬를 가진다. 
-	CCubeMeshDiffused *pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
-	12.0f, 12.0f, 12.0f);
+	CCubeMeshDiffused* pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
+		12.0f, 12.0f, 12.0f);
 	m_ppObjects[0]->SetMesh(pCubeMesh);
 	//인스턴싱을 위한 버퍼(Structured Buffer)를 생성한다.
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
