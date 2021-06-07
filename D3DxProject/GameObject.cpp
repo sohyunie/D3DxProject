@@ -39,6 +39,13 @@ void CGameObject::ReleaseUploadBuffers()
 
 void CGameObject::Animate(float fTimeElapsed)
 {
+	switch (type)
+	{
+	case WALL:
+		break;
+	default:
+		break;
+	}
 }
 
 void CGameObject::OnPrepareRender()

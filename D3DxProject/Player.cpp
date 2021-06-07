@@ -68,8 +68,10 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 		Move(xmf3Shift, bUpdateVelocity);
 	}
 }
+
 void CPlayer::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
+	XMFLOAT3 tempPosition;
 	//bUpdateVelocity가 참이면 플레이어를 이동하지 않고 속도 벡터를 변경한다. 
 	if (bUpdateVelocity)
 	{
@@ -79,9 +81,14 @@ void CPlayer::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	else
 	{
 		//플레이어를 현재 위치 벡터에서 xmf3Shift 벡터만큼 이동한다.
-		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-		//플레이어의 위치가 변경되었으므로 카메라의 위치도 xmf3Shift 벡터만큼 이동한다. 
-		if (m_pCamera) m_pCamera->Move(xmf3Shift);
+		tempPosition = Vector3::Add(m_xmf3Position, xmf3Shift);
+
+		if (tempPosition.x > -150 && tempPosition.x < 150)
+		{
+			m_xmf3Position = tempPosition;
+			//플레이어의 위치가 변경되었으므로 카메라의 위치도 xmf3Shift 벡터만큼 이동한다. 
+			if (m_pCamera) m_pCamera->Move(xmf3Shift);
+		}
 	}
 }
 //플레이어를 로컬 x-축, y-축, z-축을 중심으로 회전한다.

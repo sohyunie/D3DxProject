@@ -81,8 +81,8 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	//CGameObject** Getm_ppObjects() { return m_ppObjects; }
 protected:
-	CGameObject** m_ppObjects = NULL;
-	int m_nObjects = 0;
+	//CGameObject** m_ppObjects = NULL;
+	std::vector<CGameObject*> m_ppObjects;
 };
 
 class CInstancingShader : public CObjectsShader

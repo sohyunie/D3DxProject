@@ -270,30 +270,25 @@ void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 
 void CObjectsShader::ReleaseObjects()
 {
-	if (m_ppObjects)
-	{
-		for (int j = 0; j < m_nObjects; j++)
-		{
-			if (m_ppObjects[j]) delete m_ppObjects[j];
-		}
-		delete[] m_ppObjects;
+	for (auto& it : m_ppObjects) {
+		it->Release();
 	}
+
+	m_ppObjects.clear();
 }
 
 void CObjectsShader::AnimateObjects(float fTimeElapsed)
 {
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		m_ppObjects[j]->Animate(fTimeElapsed);
+	for (auto& it : m_ppObjects) {
+		it->Animate(fTimeElapsed);
 	}
 }
 
 
 void CObjectsShader::ReleaseUploadBuffers()
 {
-	if (m_ppObjects)
-	{
-		for (int j = 0; j < m_nObjects; j++) m_ppObjects[j]->ReleaseUploadBuffers();
+	for (auto& it : m_ppObjects) {
+		it->ReleaseUploadBuffers();
 	}
 }
 
@@ -301,13 +296,6 @@ void CObjectsShader::ReleaseUploadBuffers()
 void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	CShader::Render(pd3dCommandList, pCamera);
-	//for (int j = 0; j < m_nObjects; j++)
-	//{
-	//	if (m_ppObjects[j])
-	//	{
-	//		m_ppObjects[j]->Render(pd3dCommandList, pCamera);
-	//	}
-	//}
 }
 
 
@@ -360,7 +348,7 @@ void CInstancingShader::CreateShaderVariables(ID3D12Device* pd3dDevice,
 {
 	//인스턴스 정보를 저장할 정점 버퍼를 업로드 힙 유형으로 생성한다.
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL,
-		sizeof(VS_VB_INSTANCE) * m_nObjects, D3D12_HEAP_TYPE_UPLOAD,
+		sizeof(VS_VB_INSTANCE) * m_ppObjects.size(), D3D12_HEAP_TYPE_UPLOAD,
 		D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
 	//정점 버퍼(업로드 힙)에 대한 포인터를 저장한다.
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
@@ -378,7 +366,7 @@ void CInstancingShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 {
 	pd3dCommandList->SetGraphicsRootShaderResourceView(2,
 		m_pd3dcbGameObjects->GetGPUVirtualAddress());
-	for (int j = 0; j < m_nObjects; j++)
+	for (int j = 0; j < m_ppObjects.size(); j++)
 	{
 		XMFLOAT4X4 worldMat = m_ppObjects[j]->Get_m_xmf4x4World();
 		m_pcbMappedGameObjects[j].m_xmcColor = (j % 2) ? XMFLOAT4(0.5f, 0.0f, 0.0f, 0.0f) :
@@ -389,34 +377,42 @@ void CInstancingShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 }
 
 
-void CInstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
-	* pd3dCommandList)
+void CInstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	int xObjects = 10, yObjects = 10, zObjects = 10, i = 0;
-	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1);
-	m_ppObjects = new CGameObject * [m_nObjects];
-	float fxPitch = 12.0f * 2.5f;
-	float fyPitch = 12.0f * 2.5f;
-	float fzPitch = 12.0f * 2.5f;
-	CRotatingObject* pRotatingObject = NULL;
-	for (int x = -xObjects; x <= xObjects; x++)
-	{
-		for (int y = -yObjects; y <= yObjects; y++)
-		{
-			for (int z = -zObjects; z <= zObjects; z++)
-			{
-				pRotatingObject = new CRotatingObject();
-				pRotatingObject->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
-				pRotatingObject->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-				pRotatingObject->SetRotationSpeed(10.0f * (i % 10));
-				m_ppObjects[i++] = pRotatingObject;
+	float fWidth{ 40.0f }, fHeight{ 40.0f }, fDepth{ 80.0f };
+
+
+	CRotatingObject* pRotatingObject{};
+	for (int i = -5; i < 5; ++i)
+		for (int j = -20; j < 20; ++j) {
+
+			//pRotatingObject = new CRotatingObject;
+			//pRotatingObject->SetPosition(XMFLOAT3(fWidth * i, fHeight * 5.0f, fDepth * j));
+			//pRotatingObject->SetRotationSpeed(0.0f);
+			//m_ppObjects.push_back(pRotatingObject);
+	
+			pRotatingObject = new CRotatingObject;
+			pRotatingObject->SetPosition(XMFLOAT3(fWidth * i, 120 + fHeight * -5.0f, fDepth * j));
+			pRotatingObject->SetRotationSpeed(0.0f);
+			m_ppObjects.push_back(pRotatingObject);
+
+			if (i < -2) {
+				pRotatingObject = new CRotatingObject;
+				pRotatingObject->SetPosition(XMFLOAT3(fWidth * 5.0f, 120 + fHeight * i, fDepth * j));
+				pRotatingObject->SetRotationSpeed(0.0f);
+				m_ppObjects.push_back(pRotatingObject);
+
+				pRotatingObject = new CRotatingObject;
+				pRotatingObject->SetPosition(XMFLOAT3(fWidth * -5.0f, 120 + fHeight * i, fDepth * j));
+				pRotatingObject->SetRotationSpeed(0.0f);
+				m_ppObjects.push_back(pRotatingObject);
 			}
 		}
-	}
+
 	//인스턴싱을 사용하여 렌더링하기 위하여 하나의 게임 객체만 메쉬를 가진다. 
 	CCubeMeshDiffused* pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
-		12.0f, 12.0f, 12.0f);
-	m_ppObjects[0]->SetMesh(pCubeMesh);
+		40.0f, 40.0f, 80.0f);
+	m_ppObjects.front()->SetMesh(pCubeMesh);
 	//인스턴싱을 위한 버퍼(Structured Buffer)를 생성한다.
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -428,5 +424,5 @@ void CInstancingShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCame
 	//모든 게임 객체의 인스턴싱 데이터를 버퍼에 저장한다.
 	UpdateShaderVariables(pd3dCommandList);
 	//하나의 정점 데이터를 사용하여 모든 게임 객체(인스턴스)들을 렌더링한다.
-	m_ppObjects[0]->Render(pd3dCommandList, pCamera, m_nObjects);
+	m_ppObjects.front()->Render(pd3dCommandList, pCamera, m_ppObjects.size());
 }

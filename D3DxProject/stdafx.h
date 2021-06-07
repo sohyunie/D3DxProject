@@ -26,6 +26,8 @@
 #include <DirectXCollision.h>
 
 #include <DXGIDebug.h>
+#include <list>
+#include <vector>
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -53,6 +55,9 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice,
 	D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer =
 	NULL);
 
+enum ObjectType {
+	WALL = 0,
+};
 
 //3차원 벡터의 연산 
 namespace Vector3
