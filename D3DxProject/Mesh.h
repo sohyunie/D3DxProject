@@ -12,7 +12,6 @@ public:
 	void Release() { if (--m_nReferences <= 0) delete this; }
 	void ReleaseUploadBuffers();
 public:
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances = 1);
 protected:
 	ID3D12Resource* m_pd3dVertexBuffer = NULL;

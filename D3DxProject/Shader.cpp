@@ -301,13 +301,13 @@ void CObjectsShader::ReleaseUploadBuffers()
 void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	CShader::Render(pd3dCommandList, pCamera);
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		if (m_ppObjects[j])
-		{
-			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
-		}
-	}
+	//for (int j = 0; j < m_nObjects; j++)
+	//{
+	//	if (m_ppObjects[j])
+	//	{
+	//		m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+	//	}
+	//}
 }
 
 
