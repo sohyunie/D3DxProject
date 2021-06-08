@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CarObject.h" />
     <ClInclude Include="D3DxProject.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameFramework.h" />
@@ -156,6 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CarObject.cpp" />
     <ClCompile Include="D3DxProject.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameObject.cpp" />

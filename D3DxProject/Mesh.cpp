@@ -67,8 +67,8 @@ CTriangleMesh::CTriangleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 
 CCubeMeshDiffused::CCubeMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
-	* pd3dCommandList, float fWidth, float fHeight, float fDepth) : CMesh(pd3dDevice,
-		pd3dCommandList)
+	* pd3dCommandList, float fWidth, float fHeight, float fDepth, const XMFLOAT4& color)
+	: CMesh(pd3dDevice, pd3dCommandList)
 {
 	//직육면체는 꼭지점(정점)이 8개이다.
 	m_nVertices = 8;

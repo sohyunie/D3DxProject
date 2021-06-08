@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "GameObject.h"
 #include "Camera.h"
+#include "CarObject.h"
 
 CScene::CScene() {
 
@@ -16,35 +17,46 @@ CScene::~CScene()
 void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	* pd3dCommandList)
 {
+	//m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
+	//m_nShaders = 1;
+	//m_pShaders = new CInstancingShader[m_nShaders];
+	//m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	//m_pShaders[0].BuildObjects(pd3dDevice, pd3dCommandList);
+
+
+
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-	m_nShaders = 1;
-	m_pShaders = new CInstancingShader[m_nShaders];
-	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	m_pShaders[0].BuildObjects(pd3dDevice, pd3dCommandList);
+
+	CInstancingShader* shader{ new CInstancingShader{} };
+	shader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	shader->BuildObjects(pd3dDevice, pd3dCommandList);
+	m_pShaders.push_back(shader);
+	shader = new CCarObjectShader{};
+	shader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	shader->BuildObjects(pd3dDevice, pd3dCommandList);
+	m_pShaders.push_back(shader);
 }
 
 void CScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_pShaders[i].ReleaseShaderVariables();
-		m_pShaders[i].ReleaseObjects();
+	for (auto& it : m_pShaders) {
+		it->ReleaseShaderVariables();
+		it->ReleaseObjects();
+		delete it;
 	}
-	if (m_pShaders) delete[] m_pShaders;
 }
 
 void CScene::ReleaseUploadBuffers()
 {
-	for (int i = 0; i < m_nShaders; i++) m_pShaders[i].ReleaseUploadBuffers();
+	for (auto& it : m_pShaders)
+		it->ReleaseUploadBuffers();
 }
 
 void CScene::AnimateObjects(float fTimeElapsed)
 {
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_pShaders[i].AnimateObjects(fTimeElapsed);
-	}
+	for (auto& it : m_pShaders)
+		it->AnimateObjects(fTimeElapsed);
 }
 
 void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -53,10 +65,8 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
 	pCamera->UpdateShaderVariables(pd3dCommandList);
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_pShaders[i].Render(pd3dCommandList, pCamera);
-	}
+	for (auto& it : m_pShaders)
+		it->Render(pd3dCommandList, pCamera);
 }
 
 ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)

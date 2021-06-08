@@ -48,6 +48,9 @@ using Microsoft::WRL::ComPtr;
 
 /*정점의 색상을 무작위로(Random) 설정하기 위해 사용한다. 각 정점의 색상은 난수(Random Number)를 생성하여 지정한다.*/
 #define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+#define RANDOM_POS XMFLOAT3(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+#define RANDOM_VALUE(x) float(rand()) / float((RAND_MAX) * x)
+
 
 extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice,
 	ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE
