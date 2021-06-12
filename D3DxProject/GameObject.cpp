@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GameObject.h"
 #include "Shader.h"
+#include "Mesh.h"
 
 CGameObject::CGameObject()
 {
@@ -37,15 +38,37 @@ void CGameObject::ReleaseUploadBuffers()
 	if (m_pMesh) m_pMesh->ReleaseUploadBuffers();
 }
 
+void CGameObject::UpdateBoundingBox()
+{
+	if (m_pMesh)
+	{
+		m_pMesh->m_xmOOBB.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
+		XMStoreFloat4(&m_xmOOBB.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBB.Orientation)));
+	}
+}
+
 void CGameObject::Animate(float fTimeElapsed)
 {
-	switch (type)
-	{
-	case WALL:
-		break;
-	default:
-		break;
-	}
+	this->UpdateBoundingBox();
+}
+
+void CGameObject::Animate(float fTimeElapsed, XMFLOAT3 playerPos)
+{
+	this->UpdateBoundingBox();
+	//int bufferDistance = 10;
+
+	//switch (type)
+	//{
+	//case WALL:
+	//	break;
+	//case CAR:
+	//	if (this->GetPosition().z < playerPos.z - bufferDistance) {
+	//		this->SetPosition(this->GetPosition().x, 0, playerPos.z + 500);
+	//	}
+	//	break;
+	//default:
+	//	break;
+	//}
 }
 
 void CGameObject::OnPrepareRender()
@@ -84,12 +107,9 @@ CRotatingObject::~CRotatingObject()
 {
 }
 
-void CRotatingObject::Animate(float fTimeElapsed)
+void CRotatingObject::Animate(float fTimeElapsed, XMFLOAT3 playerPos)
 {
-	CGameObject::Rotate(&m_xmf3RotationAxis, m_fRotationSpeed * fTimeElapsed);
-	cout << m_xmf3RotationAxis.x << endl;
-	cout << m_xmf3RotationAxis.y << endl;
-	cout << m_xmf3RotationAxis.z << endl << endl;
+	CGameObject::Animate(fTimeElapsed, playerPos);
 }
 
 void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice,

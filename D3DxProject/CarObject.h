@@ -2,7 +2,7 @@
 #include "Shader.h"
 #include "GameObject.h"
 
-class CCarObject : public  CRotatingObject {
+class CCarObject : public  CGameObject {
 public:
 	CCarObject();
 	~CCarObject();
@@ -10,7 +10,7 @@ public:
 		XMFLOAT3 tempDir = dir;
 		direction = Vector3::Normalize(tempDir);
 	}
-	virtual void Animate(float elapsedTime) override;
+	virtual void Animate(float elapsedTime, XMFLOAT3 playerPos) override;
 
 	bool CheckRayIntersection(const XMFLOAT3& rayPos, const XMFLOAT3& rayDir, float* distance);
 	bool isCollision(const BoundingBox& target) {
@@ -22,8 +22,14 @@ public:
 		isLive = bFlag;
 		deletedTime = 0.0f;
 	}
+	void SetBoom(bool bFlag) {
+		isBoom = bFlag;
+	}
 	bool GetLive() {
 		return isLive;
+	}
+	bool GetIsBoom() {
+		return isBoom;
 	}
 	float GetDeletedTime() {
 		return deletedTime;
@@ -32,6 +38,7 @@ private:
 	XMFLOAT3 direction{};
 	BoundingBox boundBox{};
 	bool isLive{ true };
+	bool isBoom{ false};
 	float deletedTime{ 0.0f };
 };
 
@@ -40,7 +47,7 @@ public:
 	CCarObjectParticle();
 	~CCarObjectParticle();
 
-	virtual void Animate(float elapsedTime) override;
+	virtual void Animate(float elapsedTime, XMFLOAT3 playerPos) override;
 
 	void SetDirection(const XMFLOAT3& dir) {
 		XMFLOAT3 tempDir = dir;
@@ -69,13 +76,10 @@ public:
 		* pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 
-	virtual void AnimateObjects(float elapsedTime) override;
+	virtual void AnimateObjects(float elapsedTime, XMFLOAT3 playerPos) override;
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature) override;
 	CGameObject* IsPickingObject(const XMFLOAT3& rayDirOrigin, const XMFLOAT3& rayDir);
 
-	std::vector<CGameObject*>& GetGameObject() {
-		return m_ppObjects;
-	}
 protected:
 
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
@@ -87,7 +91,7 @@ protected:
 
 	CCubeMeshDiffused* enemyBoxMesh{ nullptr };
 	CCubeMeshDiffused* particleBoxMesh{ nullptr };
-	const int maxEnemyBoxCount{ 10 };
+	const int maxEnemyBoxCount{ 30 };
 
 };
 

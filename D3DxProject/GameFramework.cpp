@@ -54,7 +54,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDepthStencilView();
 
 	BuildObjects();
-	//렌더링할 게임 객체를 생성한다. 
+	//렌더링할 게임 객체를 생성한다.
 	return(true);
 }
 
@@ -317,6 +317,7 @@ void CGameFramework::BuildObjects()
 
 	m_pPlayer = pAirplanePlayer;
 	m_pCamera = m_pPlayer->GetCamera();
+	if (m_pScene) m_pScene->SetPlayer(m_pPlayer);
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -508,7 +509,11 @@ void CGameFramework::FrameAdvance()
 
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 	XMFLOAT3 dir = XMFLOAT3(0,0,1);
-	if (m_pPlayer) m_pPlayer->Move(DIR_FORWARD, 50.0f * m_GameTimer.GetTimeElapsed(), false);
+	if (m_pPlayer) {
+		m_pPlayer->Move(DIR_FORWARD, 50.0f * m_GameTimer.GetTimeElapsed(), false);
+		m_pPlayer->Animate(fTimeElapsed);
+	}
+		
 
 	AnimateObjects();
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();

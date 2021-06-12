@@ -18,9 +18,12 @@ public:
 	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
 public:
 	void ReleaseUploadBuffers();
+	void UpdateBoundingBox();
+	//void Animate(float fTimeElapsed, XMFLOAT3 playerPos);
 	virtual void SetMesh(CMesh* pMesh);
 	virtual void SetShader(CShader* pShader);
 	virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed, XMFLOAT3 playerPos);
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, UINT nInstances);
@@ -52,11 +55,11 @@ public:
 	XMFLOAT4X4 Get_m_xmf4x4World() { return m_xmf4x4World; }
 
 	ObjectType type;
+	BoundingOrientedBox	m_xmOOBB;
 protected:
 	XMFLOAT4X4 m_xmf4x4World;
 	CMesh* m_pMesh = NULL;
 	CShader* m_pShader = NULL;
-
 };
 
 class CRotatingObject : public CGameObject
@@ -72,5 +75,5 @@ public:
 	void SetRotationAxis(XMFLOAT3 xmf3RotationAxis) {
 		m_xmf3RotationAxis = xmf3RotationAxis;
 	}
-	virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed, XMFLOAT3 playerPos);
 };

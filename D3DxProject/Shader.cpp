@@ -277,10 +277,10 @@ void CObjectsShader::ReleaseObjects()
 	m_ppObjects.clear();
 }
 
-void CObjectsShader::AnimateObjects(float fTimeElapsed)
+void CObjectsShader::AnimateObjects(float fTimeElapsed, XMFLOAT3 playerPos)
 {
 	for (auto& it : m_ppObjects) {
-		it->Animate(fTimeElapsed);
+		it->Animate(fTimeElapsed, playerPos);
 	}
 }
 
@@ -379,10 +379,10 @@ void CInstancingShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 
 void CInstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	float fWidth{ 40.0f }, fHeight{ 40.0f }, fDepth{ 80.0f };
+	float fWidth{ 40.0f }, fHeight{ 40.0f }, fDepth{ 800.0f };
 
 
-	CRotatingObject* pRotatingObject{};
+	CGameObject* pRotatingObject{};
 	for (int i = -5; i < 5; ++i)
 		for (int j = -20; j < 20; ++j) {
 
@@ -391,27 +391,27 @@ void CInstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 			//pRotatingObject->SetRotationSpeed(0.0f);
 			//m_ppObjects.push_back(pRotatingObject);
 	
-			pRotatingObject = new CRotatingObject;
+			pRotatingObject = new CGameObject;
 			pRotatingObject->SetPosition(XMFLOAT3(fWidth * i, 120 + fHeight * -5.0f, fDepth * j));
-			pRotatingObject->SetRotationSpeed(0.0f);
+			//pRotatingObject->SetRotationSpeed(0.0f);
 			m_ppObjects.push_back(pRotatingObject);
 
 			if (i < -2) {
-				pRotatingObject = new CRotatingObject;
+				pRotatingObject = new CGameObject;
 				pRotatingObject->SetPosition(XMFLOAT3(fWidth * 5.0f, 120 + fHeight * i, fDepth * j));
-				pRotatingObject->SetRotationSpeed(0.0f);
+				//pRotatingObject->SetRotationSpeed(0.0f);
 				m_ppObjects.push_back(pRotatingObject);
 
-				pRotatingObject = new CRotatingObject;
+				pRotatingObject = new CGameObject;
 				pRotatingObject->SetPosition(XMFLOAT3(fWidth * -5.0f, 120 + fHeight * i, fDepth * j));
-				pRotatingObject->SetRotationSpeed(0.0f);
+				//pRotatingObject->SetRotationSpeed(0.0f);
 				m_ppObjects.push_back(pRotatingObject);
 			}
 		}
 
 	//인스턴싱을 사용하여 렌더링하기 위하여 하나의 게임 객체만 메쉬를 가진다. 
 	CCubeMeshDiffused* pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
-		40.0f, 40.0f, 80.0f);
+		40.0f, 40.0f, 800.0f);
 	m_ppObjects.front()->SetMesh(pCubeMesh);
 	//인스턴싱을 위한 버퍼(Structured Buffer)를 생성한다.
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);

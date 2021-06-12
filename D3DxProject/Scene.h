@@ -4,6 +4,7 @@
 class CShader;
 class CGameObject;
 class CCamera;
+class CPlayer;
 
 class CScene
 {
@@ -22,6 +23,7 @@ public:
 	void AnimateObjects(float fTimeElapsed);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	void ReleaseUploadBuffers();
+	void SetPlayer(CPlayer* player);
 	//그래픽 루트 시그너쳐를 생성한다. 
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
 	ID3D12RootSignature* GetGraphicsRootSignature();
@@ -32,4 +34,5 @@ protected:
 	//CInstancingShader* m_pShaders = NULL;
 	std::vector<CInstancingShader*> m_pShaders{};
 	int m_nShaders = 0;
+	CPlayer* m_pPlayer;
 };

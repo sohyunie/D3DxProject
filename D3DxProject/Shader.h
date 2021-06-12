@@ -70,7 +70,7 @@ public:
 	virtual ~CObjectsShader();
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		* pd3dCommandList);
-	virtual void AnimateObjects(float fTimeElapsed);
+	virtual void AnimateObjects(float fTimeElapsed, XMFLOAT3 playerPos);
 	virtual void ReleaseObjects();
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
@@ -79,10 +79,13 @@ public:
 		* pd3dGraphicsRootSignature);
 	virtual void ReleaseUploadBuffers();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+	std::vector<CGameObject*>& GetGameObject() {
+		return m_ppObjects;
+	}
 	//CGameObject** Getm_ppObjects() { return m_ppObjects; }
 protected:
-	//CGameObject** m_ppObjects = NULL;
 	std::vector<CGameObject*> m_ppObjects;
+	//CGameObject** m_ppObjects = NULL;
 };
 
 class CInstancingShader : public CObjectsShader

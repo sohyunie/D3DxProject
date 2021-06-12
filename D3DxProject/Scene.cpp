@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include "Camera.h"
 #include "CarObject.h"
+#include "Player.h"
 
 CScene::CScene() {
 
@@ -53,10 +54,30 @@ void CScene::ReleaseUploadBuffers()
 		it->ReleaseUploadBuffers();
 }
 
+void CScene::SetPlayer(CPlayer* player)
+{
+	this->m_pPlayer = player;
+}
+
+// OBJECT를 앞으로 보낼 곳
 void CScene::AnimateObjects(float fTimeElapsed)
 {
 	for (auto& it : m_pShaders)
-		it->AnimateObjects(fTimeElapsed);
+		it->AnimateObjects(fTimeElapsed, this->m_pPlayer->GetPosition());
+
+	// Collision
+	for (auto& it : m_pShaders) {
+		for (auto& objs : it->GetGameObject()) {
+			if (objs->type == ObjectType::CAR) {
+				ContainmentType containType = m_pPlayer->m_xmOOBB.Contains(objs->m_xmOOBB);
+				if (objs->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				{
+					dynamic_cast<CCarObject*>(objs)->SetLive(false);
+					cout << "collision " << endl;
+				}
+			}
+		}
+	}
 }
 
 void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
