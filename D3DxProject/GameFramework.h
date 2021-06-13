@@ -77,6 +77,7 @@ public:
 	void AnimateObjects();
 	void FrameAdvance();
 	void WaitForGpuComplete();
+	void PresentFrameBuffer();
 	//CPU와 GPU를 동기화하는 함수이다. 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

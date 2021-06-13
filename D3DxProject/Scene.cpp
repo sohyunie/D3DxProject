@@ -65,7 +65,6 @@ void CScene::SetPlayer(CPlayer* player)
 	this->m_pPlayer = player;
 }
 
-// OBJECT를 앞으로 보낼 곳
 void CScene::AnimateObjects(float fTimeElapsed)
 {
 	for (auto& it : m_pShaders)
@@ -112,8 +111,10 @@ void CScene::AnimateObjects(float fTimeElapsed)
 					if ((dynamic_cast<ItemObject*>(objs)->GetLive()))
 					{
 						dynamic_cast<ItemObject*>(objs)->SetLive(false);
+						
 						m_pPlayer->m_bBooster = true;
 						m_pPlayer->m_boostTime = 3.0f;
+						m_pPlayer->m_speed = 400;
 					}
 				}
 			}

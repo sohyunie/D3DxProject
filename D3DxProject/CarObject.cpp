@@ -23,26 +23,10 @@ void CCarObject::Animate(float elapsedTime, XMFLOAT3 playerPos) {
 	}
 
 	SetPosition(Vector3::Add(GetPosition(), Vector3::ScalarProduct(direction, elapsedTime)));
-	
-	if (this->GetPosition().x > 200.0f || this->GetPosition().x < -200.0f)
-		direction.x = -direction.x;
-	if (this->GetPosition().y > 200.0f || this->GetPosition().y < -200.0f)
-		direction.y = -direction.y;
-	if (this->GetPosition().z > 300.0f || this->GetPosition().z < -300.0f)
-		direction.z = -direction.z;
+
 	if (!isLive)
 		deletedTime += elapsedTime;
 }
-
-bool CCarObject::CheckRayIntersection(const XMFLOAT3& rayPos, const XMFLOAT3& rayDir, float* distance) {
-	XMVECTOR xmrayOrigin{ XMLoadFloat3(&rayPos) };
-	XMVECTOR xmrayDir{ XMLoadFloat3(&rayDir) };
-	float dist{};
-	BoundingBox curColl{ boundBox };
-	curColl.Transform(curColl, XMLoadFloat4x4(&m_xmf4x4World));
-	return curColl.Intersects(xmrayOrigin, xmrayDir, dist);
-}
-
 
 CCarObjectShader::CCarObjectShader() {
 
@@ -55,7 +39,7 @@ CCarObjectShader::~CCarObjectShader() {
 	for (auto& it : particles)
 		it->Release();
 
-	for (auto& it : dieObject)
+	for (auto& it : deadObject)
 		it->Release();
 }
 
@@ -69,8 +53,6 @@ void CCarObjectShader::CreateShaderVariables(ID3D12Device* pd3dDevice,
 	for (int i = 0; i < coinCount; ++i) {
 		CCarObject* enemyBox{ new CCarObject{} };
 		enemyBox->SetPosition(XMFLOAT3(-150 + rand() % 300, 0, 400 + rand() % 1000));
-		//enemyBox->SetRotationSpeed(0);
-		//enemyBox->SetRotatinAxis(XMFLOAT3(rand() % 90, rand() % 90, rand() % 90));
 		enemyBox->SetMesh(enemyBoxMesh);
 		enemyBox->SetDirection(XMFLOAT3{ 0,0, RANDOM_VALUE(1) });
 		m_ppObjects.push_back(enemyBox);
@@ -132,14 +114,13 @@ void CCarObjectShader::AnimateObjects(float elapsedTime, XMFLOAT3 playerPos) {
 		box->Animate(elapsedTime, playerPos);
 		if (!box->GetLive() && !box->GetIsBoom()) {
 			box->SetBoom(true);
-			dieObject.push_back(box);
+			deadObject.push_back(box);
 			for (int i = 0; i < 50; ++i) {
 				particles.back()->SetPosition(box->GetPosition());
 				particles.back()->SetParent(box);
 				particleObject.push_back(particles.back());
 				particles.pop_back();
 			}
-			//it = m_ppObjects.erase(it);
 		}
 		else
 			++it;
@@ -147,8 +128,8 @@ void CCarObjectShader::AnimateObjects(float elapsedTime, XMFLOAT3 playerPos) {
 	for (auto& it : particleObject)
 		it->Animate(elapsedTime, playerPos);
 
-	auto end2{ dieObject.end() };
-	for (auto it = dieObject.begin(); it != end2; ) {
+	auto end2{ deadObject.end() };
+	for (auto it = deadObject.begin(); it != end2; ) {
 		(*it)->Animate(elapsedTime, playerPos);
 		if ((*it)->GetDeletedTime() > 3.0f) {
 
@@ -159,15 +140,13 @@ void CCarObjectShader::AnimateObjects(float elapsedTime, XMFLOAT3 playerPos) {
 			for (; particle != particleObject.end(); ++particle) {
 				particles.push_back((*particle));
 			}
-			//particleObject.erase(particle);
 
 			particleObject.erase(std::remove_if(particleObject.begin(), particleObject.end(), [&](CCarObjectParticle* p) {
 				return p->GetParent() == (*it);
 				}), particleObject.end());
-			//m_ppObjects.push_back(*it);
 			(*it)->SetBoom(false);
 			(*it)->SetLive(true);
-			it = dieObject.erase(it);
+			it = deadObject.erase(it);
 		}
 		else
 			++it;
@@ -178,15 +157,6 @@ void CCarObjectShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignatur
 	m_nPipelineStates = 1;
 	m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];
 	CShader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
-}
-
-CGameObject* CCarObjectShader::IsPickingObject(const XMFLOAT3& rayDirOrigin, const XMFLOAT3& rayDir) {
-	for (auto& it : m_ppObjects) {
-		CCarObject* box{ reinterpret_cast<CCarObject*>(it) };
-		if (box->CheckRayIntersection(rayDirOrigin, rayDir, nullptr))
-			return box;
-	}
-	return nullptr;
 }
 
 CCarObjectParticle::CCarObjectParticle() {

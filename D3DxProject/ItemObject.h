@@ -12,28 +12,16 @@ public:
 	}
 	virtual void Animate(float elapsedTime, XMFLOAT3 playerPos) override;
 
-	void SetLive(bool bFlag) {
-		isLive = bFlag;
-		deletedTime = 0.0f;
-	}
 	void SetBoom(bool bFlag) {
 		isBoom = bFlag;
-	}
-	bool GetLive() {
-		return isLive;
 	}
 	bool GetIsBoom() {
 		return isBoom;
 	}
-	float GetDeletedTime() {
-		return deletedTime;
-	}
 private:
 	XMFLOAT3 direction{};
 	BoundingBox boundBox{};
-	bool isLive{ true };
-	bool isBoom{ false };
-	float deletedTime{ 0.0f };
+	bool isBoom = false;
 };
 
 class ItemObjectShader : public CInstancingShader {
@@ -54,10 +42,7 @@ protected:
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
 
-	std::list<ItemObjectShader*> dieObject{};
-
-	CCubeMeshDiffused* itemBoxMesh{ nullptr };
-	const int itemCount{ 2 };
-
+	CCubeMeshDiffused* itemBoxMesh = nullptr;
+	const int itemCount = 2;
 };
 

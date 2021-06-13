@@ -25,14 +25,12 @@ void ItemObject::Animate(float elapsedTime, XMFLOAT3 playerPos) {
 
 	SetPosition(Vector3::Add(GetPosition(), Vector3::ScalarProduct(direction, elapsedTime)));
 
-	if (this->GetPosition().x > 200.0f || this->GetPosition().x < -200.0f)
-		direction.x = -direction.x;
-	if (this->GetPosition().y > 200.0f || this->GetPosition().y < -200.0f)
-		direction.y = -direction.y;
-	if (this->GetPosition().z > 300.0f || this->GetPosition().z < -300.0f)
-		direction.z = -direction.z;
-	if (!isLive)
+	if (!isLive) {
 		deletedTime += elapsedTime;
+		if (this->GetDeletedTime() > 3.0f) {
+			this->SetLive(true);
+		}
+	}
 }
 
 ItemObjectShader::ItemObjectShader() {
@@ -40,8 +38,7 @@ ItemObjectShader::ItemObjectShader() {
 }
 
 ItemObjectShader::~ItemObjectShader() {
-	for (auto& it : dieObject)
-		it->Release();
+	
 }
 
 void ItemObjectShader::CreateShaderVariables(ID3D12Device* pd3dDevice,

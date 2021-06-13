@@ -37,11 +37,11 @@ protected:
 	float m_fTimeLag;
 	XMFLOAT4X4 m_xmf4x4View;
 	XMFLOAT4X4 m_xmf4x4Projection;
-	D3D12_VIEWPORT m_d3dViewport;
 	D3D12_RECT m_d3dScissorRect;
 	//카메라를 가지고 있는 플레이어에 대한 포인터이다. 
 	CPlayer* m_pPlayer = NULL;
 public:
+	D3D12_VIEWPORT m_d3dViewport;
 	CCamera();
 	CCamera(CCamera* pCamera);
 	virtual ~CCamera();

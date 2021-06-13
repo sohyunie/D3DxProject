@@ -49,6 +49,16 @@ public:
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
 	void MoveForward(float fDistance = 1.0f);
+	bool GetLive() {
+		return isLive;
+	}
+	void SetLive(bool bFlag) {
+		isLive = bFlag;
+		deletedTime = 0.0f;
+	}
+	float GetDeletedTime() {
+		return deletedTime;
+	}
 
 	//게임 객체를 회전(x-축, y-축, z-축)한다. 
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
@@ -60,6 +70,8 @@ protected:
 	XMFLOAT4X4 m_xmf4x4World;
 	CMesh* m_pMesh = NULL;
 	CShader* m_pShader = NULL;
+	bool isLive = true;
+	float deletedTime = 0.0f;
 };
 
 class CRotatingObject : public CGameObject

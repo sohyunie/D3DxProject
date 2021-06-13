@@ -12,33 +12,16 @@ public:
 	}
 	virtual void Animate(float elapsedTime, XMFLOAT3 playerPos) override;
 
-	bool isCollision(const BoundingBox& target) {
-		BoundingBox curColl{ boundBox };
-		curColl.Transform(curColl, XMLoadFloat4x4(&m_xmf4x4World));
-		return curColl.Contains(target) != ContainmentType::DISJOINT;
-	}
-	void SetLive(bool bFlag) {
-		isLive = bFlag;
-		deletedTime = 0.0f;
-	}
 	void SetBoom(bool bFlag) {
 		isBoom = bFlag;
-	}
-	bool GetLive() {
-		return isLive;
 	}
 	bool GetIsBoom() {
 		return isBoom;
 	}
-	float GetDeletedTime() {
-		return deletedTime;
-	}
 private:
 	XMFLOAT3 direction{};
 	BoundingBox boundBox{};
-	bool isLive{ true };
 	bool isBoom{ false };
-	float deletedTime{ 0.0f };
 };
 
 class CoinObjectShader : public CInstancingShader {
@@ -59,10 +42,9 @@ protected:
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
 
-	std::list<CoinObjectShader*> dieObject{};
 
-	CCubeMeshDiffused* coinBoxMesh{ nullptr };
-	const int coinCount{ 10 };
+	CCubeMeshDiffused* coinBoxMesh = nullptr;
+	const int coinCount = 10;
 
 };
 

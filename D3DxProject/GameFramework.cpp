@@ -305,6 +305,52 @@ void CGameFramework::CreateDepthStencilView()
 	//깊이-스텐실 버퍼 뷰를 생성한다. 
 }
 
+void CGameFramework::PresentFrameBuffer()
+{
+	HDC hDC = ::GetDC(m_hWnd);
+	//::BitBlt(hDC, int(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), int(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), int(m_pPlayer->m_pCamera->m_d3dViewport.Width), int(m_pPlayer->m_pCamera->m_d3dViewport.Height), m_hDCFrameBuffer, int(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), int(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), SRCCOPY);
+
+	// TODO: 여기에 그리기 코드를 추가합니다.
+	RECT window_rect;
+	RECT rect;
+	GetClientRect(m_hWnd, &window_rect);
+	rect = { 0, 0, window_rect.right, window_rect.bottom };
+	SetBkColor(hDC, RGB(0, 0, 0));
+	SetTextColor(hDC, RGB(255, 255, 255));
+
+
+	TCHAR tmp[40];
+
+	_stprintf_s(tmp, _T("HP : "));
+	DrawText(hDC, tmp, _tcslen(tmp), &rect, DT_SINGLELINE | DT_LEFT);
+	_stprintf_s(tmp, _T("%d"), m_pPlayer->m_hp);
+	TextOut(hDC, 30, 0, tmp, _tcslen(tmp));
+	rect.top += 20;
+
+	_stprintf_s(tmp, _T("COIN : "));
+	DrawText(hDC, tmp, _tcslen(tmp), &rect, DT_SINGLELINE | DT_LEFT);
+	_stprintf_s(tmp, _T("%d"), m_pPlayer->coin);
+	TextOut(hDC, 45, rect.top, tmp, _tcslen(tmp));
+
+	rect.top += 20;
+	_stprintf_s(tmp, _T("SPEED : "));
+	DrawText(hDC, tmp, _tcslen(tmp), &rect, DT_SINGLELINE | DT_LEFT);
+	_stprintf_s(tmp, _T("%d"), (int)m_pPlayer->m_speed);
+	TextOut(hDC, 58, rect.top, tmp, _tcslen(tmp));
+
+	if (m_pPlayer->m_bBooster) {
+		rect.top += 20;
+		_stprintf_s(tmp, _T("INVINCIBLE TIME : "));
+		DrawText(hDC, tmp, _tcslen(tmp), &rect, DT_SINGLELINE | DT_LEFT);
+		_stprintf_s(tmp, _T("%d"), (int)m_pPlayer->m_boostTime);
+		TextOut(hDC, 125, rect.top, tmp, _tcslen(tmp));
+	}
+
+
+
+	::ReleaseDC(m_hWnd, hDC);
+}
+
 
 void CGameFramework::BuildObjects()
 {
@@ -545,6 +591,8 @@ void CGameFramework::FrameAdvance()
 	WaitForGpuComplete();
 	m_pdxgiSwapChain->Present(0, 0);
 	MoveToNextFrame();
+
+	PresentFrameBuffer();
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }

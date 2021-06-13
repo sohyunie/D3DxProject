@@ -11,35 +11,16 @@ public:
 		direction = Vector3::Normalize(tempDir);
 	}
 	virtual void Animate(float elapsedTime, XMFLOAT3 playerPos) override;
-
-	bool CheckRayIntersection(const XMFLOAT3& rayPos, const XMFLOAT3& rayDir, float* distance);
-	bool isCollision(const BoundingBox& target) {
-		BoundingBox curColl{ boundBox };
-		curColl.Transform(curColl, XMLoadFloat4x4(&m_xmf4x4World));
-		return curColl.Contains(target) != ContainmentType::DISJOINT;
-	}
-	void SetLive(bool bFlag) {
-		isLive = bFlag;
-		deletedTime = 0.0f;
-	}
 	void SetBoom(bool bFlag) {
 		isBoom = bFlag;
-	}
-	bool GetLive() {
-		return isLive;
 	}
 	bool GetIsBoom() {
 		return isBoom;
 	}
-	float GetDeletedTime() {
-		return deletedTime;
-	}
 private:
 	XMFLOAT3 direction{};
 	BoundingBox boundBox{};
-	bool isLive{ true };
-	bool isBoom{ false};
-	float deletedTime{ 0.0f };
+	bool isBoom = false;
 };
 
 class CCarObjectParticle : public CGameObject {
@@ -62,7 +43,7 @@ public:
 	}
 private:
 	XMFLOAT3 direction{};
-	CCarObject* parent{ nullptr };
+	CCarObject* parent = nullptr;
 };
 
 class CCarObjectShader : public CInstancingShader {
@@ -78,7 +59,6 @@ public:
 
 	virtual void AnimateObjects(float elapsedTime, XMFLOAT3 playerPos) override;
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature) override;
-	CGameObject* IsPickingObject(const XMFLOAT3& rayDirOrigin, const XMFLOAT3& rayDir);
 
 protected:
 
@@ -87,11 +67,11 @@ protected:
 
 	std::vector<CCarObjectParticle*> particles{};
 	std::vector<CCarObjectParticle*> particleObject{};
-	std::list<CCarObject*> dieObject{};
+	std::list<CCarObject*> deadObject{};
 
-	CCubeMeshDiffused* enemyBoxMesh{ nullptr };
-	CCubeMeshDiffused* particleBoxMesh{ nullptr };
-	const int coinCount{ 30 };
+	CCubeMeshDiffused* enemyBoxMesh = nullptr;
+	CCubeMeshDiffused* particleBoxMesh = nullptr;
+	const int coinCount = 30;
 
 };
 

@@ -35,8 +35,8 @@ protected:
 	//카메라의 위치가 바뀔 때마다 호출되는 OnCameraUpdateCallback() 함수에서 사용하는 데이터이다. 
 	LPVOID m_pCameraUpdatedContext;
 	//플레이어에 현재 설정된 카메라이다.
-	CCamera* m_pCamera = NULL;
 public:
+	CCamera* m_pCamera = NULL;
 	bool m_bBooster = false;
 	float m_boostTime = 0;
 	float m_speed = SPEED_DEFAULT;
