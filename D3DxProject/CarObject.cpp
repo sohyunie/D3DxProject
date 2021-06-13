@@ -7,7 +7,6 @@ CCarObject::CCarObject() {
 	XMVECTOR maxVect{ XMVectorSet(5.0f, 5.0f, 10.0f, 1.0f) };
 
 	this->type = ObjectType::CAR;
-	BoundingBox::CreateFromPoints(boundBox, minVect, maxVect);
 }
 
 CCarObject::~CCarObject() {
@@ -27,7 +26,7 @@ void CCarObject::Animate(float elapsedTime, XMFLOAT3 playerPos) {
 	if (!isLive)
 		deletedTime += elapsedTime;
 
-	this->m_xmf4x4World._42 = (!this->isLive) ? -1000 : 0;
+	//this->m_xmf4x4World._42 = (!this->isLive) ? -1000 : 0;
 }
 
 CCarObjectShader::CCarObjectShader() {
@@ -53,11 +52,11 @@ void CCarObjectShader::CreateShaderVariables(ID3D12Device* pd3dDevice,
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 
 	for (int i = 0; i < coinCount; ++i) {
-		CCarObject* enemyBox{ new CCarObject{} };
-		enemyBox->SetPosition(XMFLOAT3(-150 + rand() % 300, 0, 400 + rand() % 1000));
-		enemyBox->SetMesh(enemyBoxMesh);
-		enemyBox->SetDirection(XMFLOAT3{ 0,0, RANDOM_VALUE(1) });
-		m_ppObjects.push_back(enemyBox);
+		CCarObject* carObj{ new CCarObject{} };
+		carObj->SetPosition(XMFLOAT3(-150 + rand() % 300, 0, 400 + rand() % 1000));
+		carObj->SetMesh(enemyBoxMesh);
+		carObj->SetDirection(XMFLOAT3{ 0,0, RANDOM_VALUE(1) });
+		m_ppObjects.push_back(carObj);
 	}
 
 	for (int i = 0; i < 1000; ++i) {
@@ -96,7 +95,7 @@ void CCarObjectShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	enemyBoxMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
 		7.0f, 7.0f, 12.0f);
 	particleBoxMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
-		1.0f, 1.0f, 1.0f, XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f });
+		0.5f, 0.5f, 0.5f, XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f });
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -117,7 +116,7 @@ void CCarObjectShader::AnimateObjects(float elapsedTime, XMFLOAT3 playerPos) {
 		if (!box->GetLive() && !box->GetIsBoom()) {
 			box->SetBoom(true);
 			deadObject.push_back(box);
-			for (int i = 0; i < 50; ++i) {
+			for (int i = 0; i < 40; ++i) {
 				particles.back()->SetPosition(box->GetPosition());
 				particles.back()->SetParent(box);
 				particleObject.push_back(particles.back());
@@ -133,13 +132,14 @@ void CCarObjectShader::AnimateObjects(float elapsedTime, XMFLOAT3 playerPos) {
 	auto end2{ deadObject.end() };
 	for (auto it = deadObject.begin(); it != end2; ) {
 		(*it)->Animate(elapsedTime, playerPos);
-		if ((*it)->GetDeletedTime() > 3.0f) {
+		if ((*it)->GetDeletedTime() > 2.0f) {
 
 			auto particle = std::find_if(particleObject.begin(), particleObject.end(), [&](CCarObjectParticle* p) {
 				return p->GetParent() == (*it);
 				});
 
 			for (; particle != particleObject.end(); ++particle) {
+				(*particle)->SetMesh(particleBoxMesh);
 				particles.push_back((*particle));
 			}
 
@@ -171,5 +171,5 @@ CCarObjectParticle::~CCarObjectParticle() {
 
 void CCarObjectParticle::Animate(float elapsedTime, XMFLOAT3 playerPos) {
 	CGameObject::Animate(elapsedTime, playerPos);
-	SetPosition(Vector3::Add(GetPosition(), Vector3::ScalarProduct(direction, elapsedTime * 20)));
+	SetPosition(Vector3::Add(GetPosition(), Vector3::ScalarProduct(direction, elapsedTime * 60)));
 }

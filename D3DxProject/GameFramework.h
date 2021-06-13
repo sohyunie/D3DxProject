@@ -55,7 +55,7 @@ private:
 	_TCHAR m_pszFrameRate[50];
 private:
 	CScene* m_pScene;
-
+	bool m_isPause = false;
 public:
 	CGameFramework();
 	~CGameFramework();

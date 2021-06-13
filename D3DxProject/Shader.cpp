@@ -382,21 +382,21 @@ void CInstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	float fWidth{ 40.0f }, fHeight{ 40.0f }, fDepth{ 800.0f };
 
 
-	CGameObject* pRotatingObject{};
+	CGameObject* pWallObject{};
 	for (int i = -5; i < 5; ++i)
 		for (int j = -20; j < 20; ++j) {
-			pRotatingObject = new CGameObject;
-			pRotatingObject->SetPosition(XMFLOAT3(fWidth * i, 170 + fHeight * -5.0f, fDepth * j));
-			m_ppObjects.push_back(pRotatingObject);
+			pWallObject = new CGameObject;
+			pWallObject->SetPosition(XMFLOAT3(fWidth * i, 170 + fHeight * -5.0f, fDepth * j));
+			m_ppObjects.push_back(pWallObject);
 
 			if (i < -2) {
-				pRotatingObject = new CGameObject;
-				pRotatingObject->SetPosition(XMFLOAT3(fWidth * 5.0f, 170 + fHeight * i, fDepth * j));
-				m_ppObjects.push_back(pRotatingObject);
+				pWallObject = new CGameObject;
+				pWallObject->SetPosition(XMFLOAT3(fWidth * 5.0f, 170 + fHeight * i, fDepth * j));
+				m_ppObjects.push_back(pWallObject);
 
-				pRotatingObject = new CGameObject;
-				pRotatingObject->SetPosition(XMFLOAT3(fWidth * -5.0f, 170 + fHeight * i, fDepth * j));
-				m_ppObjects.push_back(pRotatingObject);
+				pWallObject = new CGameObject;
+				pWallObject->SetPosition(XMFLOAT3(fWidth * -5.0f, 170 + fHeight * i, fDepth * j));
+				m_ppObjects.push_back(pWallObject);
 			}
 		}
 

@@ -364,6 +364,8 @@ void CGameFramework::BuildObjects()
 	m_pPlayer = pAirplanePlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 	if (m_pScene) m_pScene->SetPlayer(m_pPlayer);
+	if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((VK_F3 - VK_F1 + 1),
+		m_GameTimer.GetTimeElapsed());
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -429,6 +431,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F9:
 			ChangeSwapChainState();
 			break;
+		case 'Q':
+			exit(0);
+			break;
+		case 'P':
+			m_isPause = (m_isPause) ? false : true;
+			break;
 		default:
 			break;
 		}
@@ -464,6 +472,7 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 	}
 	return(0);
 }
+
 
 
 void CGameFramework::ProcessInput()
@@ -535,6 +544,7 @@ void CGameFramework::MoveToNextFrame()
 // #define _WITH_PLAYER_TOP
 void CGameFramework::FrameAdvance()
 {
+	if (m_isPause) return;
 	m_GameTimer.Tick(0.0f);
 	ProcessInput();
 
@@ -563,7 +573,8 @@ void CGameFramework::FrameAdvance()
 		m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex *
 		m_nRtvDescriptorIncrementSize);
-	float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
+	float color = this->m_pPlayer->m_hp / 100.0f;
+	float pfClearColor[4] = { color, color, color, 1.0f };
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle,
 		pfClearColor/*Colors::Azure*/, 0, NULL);
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle =
