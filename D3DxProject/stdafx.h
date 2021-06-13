@@ -64,6 +64,8 @@ enum ObjectType {
 	WALL = 0,
 	PLAYER = 1,
 	CAR = 2,
+	COIN = 3,
+	ITEM = 4,
 };
 
 //3차원 벡터의 연산 

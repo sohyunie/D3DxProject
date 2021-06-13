@@ -41,6 +41,7 @@ public:
 	float m_boostTime = 0;
 	float m_speed = SPEED_DEFAULT;
 	int m_hp = 100;
+	int coin = 0;
 public:
 	CPlayer();
 	virtual ~CPlayer();

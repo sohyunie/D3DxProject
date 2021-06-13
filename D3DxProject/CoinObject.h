@@ -2,17 +2,16 @@
 #include "Shader.h"
 #include "GameObject.h"
 
-class CCarObject : public  CGameObject {
+class CoinObject : public CRotatingObject {
 public:
-	CCarObject();
-	~CCarObject();
+	CoinObject();
+	~CoinObject();
 	void SetDirection(const XMFLOAT3& dir) {
 		XMFLOAT3 tempDir = dir;
 		direction = Vector3::Normalize(tempDir);
 	}
 	virtual void Animate(float elapsedTime, XMFLOAT3 playerPos) override;
 
-	bool CheckRayIntersection(const XMFLOAT3& rayPos, const XMFLOAT3& rayDir, float* distance);
 	bool isCollision(const BoundingBox& target) {
 		BoundingBox curColl{ boundBox };
 		curColl.Transform(curColl, XMLoadFloat4x4(&m_xmf4x4World));
@@ -38,37 +37,14 @@ private:
 	XMFLOAT3 direction{};
 	BoundingBox boundBox{};
 	bool isLive{ true };
-	bool isBoom{ false};
+	bool isBoom{ false };
 	float deletedTime{ 0.0f };
 };
 
-class CCarObjectParticle : public CGameObject {
+class CoinObjectShader : public CInstancingShader {
 public:
-	CCarObjectParticle();
-	~CCarObjectParticle();
-
-	virtual void Animate(float elapsedTime, XMFLOAT3 playerPos) override;
-
-	void SetDirection(const XMFLOAT3& dir) {
-		XMFLOAT3 tempDir = dir;
-		direction = Vector3::Normalize(tempDir);
-	}
-
-	void SetParent(CCarObject* target) {
-		parent = target;
-	}
-	CCarObject* GetParent() {
-		return parent;
-	}
-private:
-	XMFLOAT3 direction{};
-	CCarObject* parent{ nullptr };
-};
-
-class CCarObjectShader : public CInstancingShader {
-public:
-	CCarObjectShader();
-	virtual ~CCarObjectShader();
+	CoinObjectShader();
+	virtual ~CoinObjectShader();
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -78,20 +54,15 @@ public:
 
 	virtual void AnimateObjects(float elapsedTime, XMFLOAT3 playerPos) override;
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature) override;
-	CGameObject* IsPickingObject(const XMFLOAT3& rayDirOrigin, const XMFLOAT3& rayDir);
-
 protected:
 
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
 
-	std::vector<CCarObjectParticle*> particles{};
-	std::vector<CCarObjectParticle*> particleObject{};
-	std::list<CCarObject*> dieObject{};
+	std::list<CoinObjectShader*> dieObject{};
 
-	CCubeMeshDiffused* enemyBoxMesh{ nullptr };
-	CCubeMeshDiffused* particleBoxMesh{ nullptr };
-	const int coinCount{ 30 };
+	CCubeMeshDiffused* coinBoxMesh{ nullptr };
+	const int coinCount{ 10 };
 
 };
 

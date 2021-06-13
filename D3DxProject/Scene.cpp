@@ -4,6 +4,8 @@
 #include "GameObject.h"
 #include "Camera.h"
 #include "CarObject.h"
+#include "CoinObject.h"
+#include "ItemObject.h"
 #include "Player.h"
 
 CScene::CScene() {
@@ -18,21 +20,25 @@ CScene::~CScene()
 void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	* pd3dCommandList)
 {
-	//m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-	//m_nShaders = 1;
-	//m_pShaders = new CInstancingShader[m_nShaders];
-	//m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	//m_pShaders[0].BuildObjects(pd3dDevice, pd3dCommandList);
-
-
-
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
+	// Wall
 	CInstancingShader* shader{ new CInstancingShader{} };
 	shader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	shader->BuildObjects(pd3dDevice, pd3dCommandList);
 	m_pShaders.push_back(shader);
+	// Car Object
 	shader = new CCarObjectShader{};
+	shader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	shader->BuildObjects(pd3dDevice, pd3dCommandList);
+	m_pShaders.push_back(shader);
+	// Coin Object
+	shader = new CoinObjectShader{};
+	shader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	shader->BuildObjects(pd3dDevice, pd3dCommandList);
+	m_pShaders.push_back(shader);
+	// Item Object
+	shader = new ItemObjectShader{};
 	shader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	shader->BuildObjects(pd3dDevice, pd3dCommandList);
 	m_pShaders.push_back(shader);
@@ -68,7 +74,9 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	// Collision
 	for (auto& it : m_pShaders) {
 		for (auto& objs : it->GetGameObject()) {
-			if (objs->type == ObjectType::CAR) {
+			switch (objs->type) {
+			case ObjectType::CAR:
+			{
 				ContainmentType containType = m_pPlayer->m_xmOOBB.Contains(objs->m_xmOOBB);
 				if (objs->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
 				{
@@ -81,6 +89,35 @@ void CScene::AnimateObjects(float fTimeElapsed)
 						}
 					}
 				}
+			}
+			break;
+			case ObjectType::COIN:
+			{
+				ContainmentType containType = m_pPlayer->m_xmOOBB.Contains(objs->m_xmOOBB);
+				if (objs->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				{
+					if ((dynamic_cast<CoinObject*>(objs)->GetLive()))
+					{
+						dynamic_cast<CoinObject*>(objs)->SetLive(false);
+						m_pPlayer->coin++;
+					}
+				}
+			}
+			break;
+			case ObjectType::ITEM:
+			{
+				ContainmentType containType = m_pPlayer->m_xmOOBB.Contains(objs->m_xmOOBB);
+				if (objs->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
+				{
+					if ((dynamic_cast<ItemObject*>(objs)->GetLive()))
+					{
+						dynamic_cast<ItemObject*>(objs)->SetLive(false);
+						m_pPlayer->m_bBooster = true;
+						m_pPlayer->m_boostTime = 3.0f;
+					}
+				}
+			}
+			break;
 			}
 		}
 	}

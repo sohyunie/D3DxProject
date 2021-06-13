@@ -55,20 +55,6 @@ void CGameObject::Animate(float fTimeElapsed)
 void CGameObject::Animate(float fTimeElapsed, XMFLOAT3 playerPos)
 {
 	this->UpdateBoundingBox();
-	//int bufferDistance = 10;
-
-	//switch (type)
-	//{
-	//case WALL:
-	//	break;
-	//case CAR:
-	//	if (this->GetPosition().z < playerPos.z - bufferDistance) {
-	//		this->SetPosition(this->GetPosition().x, 0, playerPos.z + 500);
-	//	}
-	//	break;
-	//default:
-	//	break;
-	//}
 }
 
 void CGameObject::OnPrepareRender()
@@ -110,6 +96,7 @@ CRotatingObject::~CRotatingObject()
 void CRotatingObject::Animate(float fTimeElapsed, XMFLOAT3 playerPos)
 {
 	CGameObject::Animate(fTimeElapsed, playerPos);
+	CGameObject::Rotate(&m_xmf3RotationAxis, m_fRotationSpeed * fTimeElapsed);
 }
 
 void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice,

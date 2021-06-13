@@ -67,7 +67,7 @@ class CRotatingObject : public CGameObject
 public:
 	CRotatingObject();
 	virtual ~CRotatingObject();
-private:
+protected:
 	XMFLOAT3 m_xmf3RotationAxis;
 	float m_fRotationSpeed;
 public:

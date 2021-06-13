@@ -62,13 +62,13 @@ CCarObjectShader::~CCarObjectShader() {
 void CCarObjectShader::CreateShaderVariables(ID3D12Device* pd3dDevice,
 	ID3D12GraphicsCommandList* pd3dCommandList) {
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL,
-		(sizeof(VS_VB_INSTANCE) * maxEnemyBoxCount) + (sizeof(VS_VB_INSTANCE) * 1000), D3D12_HEAP_TYPE_UPLOAD,
+		(sizeof(VS_VB_INSTANCE) * coinCount) + (sizeof(VS_VB_INSTANCE) * 1000), D3D12_HEAP_TYPE_UPLOAD,
 		D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
 
-	for (int i = 0; i < maxEnemyBoxCount; ++i) {
+	for (int i = 0; i < coinCount; ++i) {
 		CCarObject* enemyBox{ new CCarObject{} };
-		enemyBox->SetPosition(XMFLOAT3(-100 + rand() % 200, 0, 400 + rand() % 1000));
+		enemyBox->SetPosition(XMFLOAT3(-150 + rand() % 300, 0, 400 + rand() % 1000));
 		//enemyBox->SetRotationSpeed(0);
 		//enemyBox->SetRotatinAxis(XMFLOAT3(rand() % 90, rand() % 90, rand() % 90));
 		enemyBox->SetMesh(enemyBoxMesh);
@@ -110,7 +110,7 @@ void CCarObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 void CCarObjectShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	* pd3dCommandList) {
 	enemyBoxMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
-		5.0f, 5.0f, 10.0f);
+		7.0f, 7.0f, 12.0f);
 	particleBoxMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
 		1.0f, 1.0f, 1.0f, XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f });
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
