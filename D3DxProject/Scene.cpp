@@ -72,8 +72,14 @@ void CScene::AnimateObjects(float fTimeElapsed)
 				ContainmentType containType = m_pPlayer->m_xmOOBB.Contains(objs->m_xmOOBB);
 				if (objs->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB))
 				{
-					dynamic_cast<CCarObject*>(objs)->SetLive(false);
-					cout << "collision " << endl;
+					if (!m_pPlayer->m_bBooster) {
+						m_pPlayer->m_speed = SPEED_DEFAULT;
+						if ((dynamic_cast<CCarObject*>(objs)->GetLive()))
+						{
+							dynamic_cast<CCarObject*>(objs)->SetLive(false);
+							m_pPlayer->m_hp -= 5;
+						}
+					}
 				}
 			}
 		}

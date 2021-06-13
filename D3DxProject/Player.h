@@ -37,6 +37,11 @@ protected:
 	//플레이어에 현재 설정된 카메라이다.
 	CCamera* m_pCamera = NULL;
 public:
+	bool m_bBooster = false;
+	float m_boostTime = 0;
+	float m_speed = SPEED_DEFAULT;
+	int m_hp = 100;
+public:
 	CPlayer();
 	virtual ~CPlayer();
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
