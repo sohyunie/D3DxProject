@@ -207,7 +207,9 @@ void CPlayer::Update(float fTimeElapsed)
 	//카메라의 위치가 변경될 때 추가로 수행할 작업을 수행한다. 
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	//카메라가 3인칭 카메라이면 카메라가 변경된 플레이어 위치를 바라보도록 한다. 
-	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
+	XMFLOAT3 lookAt = m_xmf3Position;
+	lookAt.y += 15;
+	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(lookAt);
 	//카메라의 카메라 변환 행렬을 다시 생성한다. 
 	m_pCamera->RegenerateViewMatrix();
 	/*플레이어의 속도 벡터가 마찰력 때문에 감속이 되어야 한다면 감속 벡터를 생성한다. 속도 벡터의 반대 방향 벡터를

@@ -385,26 +385,17 @@ void CInstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	CGameObject* pRotatingObject{};
 	for (int i = -5; i < 5; ++i)
 		for (int j = -20; j < 20; ++j) {
-
-			//pRotatingObject = new CRotatingObject;
-			//pRotatingObject->SetPosition(XMFLOAT3(fWidth * i, fHeight * 5.0f, fDepth * j));
-			//pRotatingObject->SetRotationSpeed(0.0f);
-			//m_ppObjects.push_back(pRotatingObject);
-	
 			pRotatingObject = new CGameObject;
-			pRotatingObject->SetPosition(XMFLOAT3(fWidth * i, 120 + fHeight * -5.0f, fDepth * j));
-			//pRotatingObject->SetRotationSpeed(0.0f);
+			pRotatingObject->SetPosition(XMFLOAT3(fWidth * i, 170 + fHeight * -5.0f, fDepth * j));
 			m_ppObjects.push_back(pRotatingObject);
 
 			if (i < -2) {
 				pRotatingObject = new CGameObject;
-				pRotatingObject->SetPosition(XMFLOAT3(fWidth * 5.0f, 120 + fHeight * i, fDepth * j));
-				//pRotatingObject->SetRotationSpeed(0.0f);
+				pRotatingObject->SetPosition(XMFLOAT3(fWidth * 5.0f, 170 + fHeight * i, fDepth * j));
 				m_ppObjects.push_back(pRotatingObject);
 
 				pRotatingObject = new CGameObject;
-				pRotatingObject->SetPosition(XMFLOAT3(fWidth * -5.0f, 120 + fHeight * i, fDepth * j));
-				//pRotatingObject->SetRotationSpeed(0.0f);
+				pRotatingObject->SetPosition(XMFLOAT3(fWidth * -5.0f, 170 + fHeight * i, fDepth * j));
 				m_ppObjects.push_back(pRotatingObject);
 			}
 		}

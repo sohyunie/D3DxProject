@@ -17,8 +17,7 @@ void CoinObject::Animate(float elapsedTime, XMFLOAT3 playerPos) {
 	//CoinObject::Animate(elapsedTime, playerPos);
 	CRotatingObject::Animate(elapsedTime, playerPos);
 
-
-	int bufferDistance = 10;
+	int bufferDistance = 50;
 	if (this->GetPosition().z < playerPos.z - bufferDistance && this->GetLive()) {
 		this->SetPosition(this->GetPosition().x, 0, playerPos.z + 1000);
 	}
@@ -31,6 +30,8 @@ void CoinObject::Animate(float elapsedTime, XMFLOAT3 playerPos) {
 			this->SetLive(true);
 		}
 	}
+
+	this->m_xmf4x4World._42 = (!this->isLive) ? -1000 : 0;
 }
 
 CoinObjectShader::CoinObjectShader() {

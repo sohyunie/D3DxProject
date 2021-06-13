@@ -53,8 +53,9 @@ public:
 		return isLive;
 	}
 	void SetLive(bool bFlag) {
+		if(isLive == true)
+			deletedTime = 0.0f;
 		isLive = bFlag;
-		deletedTime = 0.0f;
 	}
 	float GetDeletedTime() {
 		return deletedTime;
