@@ -53,7 +53,7 @@ void ItemObjectShader::CreateShaderVariables(ID3D12Device* pd3dDevice,
 	for (int i = 0; i < itemCount; ++i) {
 		ItemObject* itemObj{ new ItemObject{} };
 		itemObj->SetPosition(XMFLOAT3(-100 + rand() % 200, 0, 400 + rand() % 1000));
-		itemObj->SetMesh(itemBoxMesh);
+		itemObj->SetMesh(0, itemBoxMesh);
 		itemObj->SetDirection(XMFLOAT3{ 0,0, RANDOM_VALUE(1) });
 		m_ppObjects.push_back(itemObj);
 	}

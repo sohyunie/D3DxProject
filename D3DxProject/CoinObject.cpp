@@ -52,7 +52,7 @@ void CoinObjectShader::CreateShaderVariables(ID3D12Device* pd3dDevice,
 	for (int i = 0; i < coinCount; ++i) {
 		CoinObject* coinObj{ new CoinObject{} };
 		coinObj->SetPosition(XMFLOAT3(-100 + rand() % 200, 0, 400 + rand() % 1000));
-		coinObj->SetMesh(coinBoxMesh);
+		coinObj->SetMesh(0, coinBoxMesh);
 		coinObj->SetDirection(XMFLOAT3{ 0,0, RANDOM_VALUE(1) });
 		m_ppObjects.push_back(coinObj);
 	}

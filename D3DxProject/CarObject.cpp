@@ -54,14 +54,14 @@ void CCarObjectShader::CreateShaderVariables(ID3D12Device* pd3dDevice,
 	for (int i = 0; i < coinCount; ++i) {
 		CCarObject* carObj{ new CCarObject{} };
 		carObj->SetPosition(XMFLOAT3(-150 + rand() % 300, 0, 400 + rand() % 1000));
-		carObj->SetMesh(enemyBoxMesh);
+		carObj->SetMesh(0, enemyBoxMesh);
 		carObj->SetDirection(XMFLOAT3{ 0,0, RANDOM_VALUE(1) });
 		m_ppObjects.push_back(carObj);
 	}
 
 	for (int i = 0; i < 1000; ++i) {
 		CCarObjectParticle* particle{ new CCarObjectParticle{} };
-		particle->SetMesh(particleBoxMesh);
+		particle->SetMesh(0, particleBoxMesh);
 		particle->SetDirection(XMFLOAT3{ -RANDOM_VALUE(1.0f) + RANDOM_VALUE(1.0f), -RANDOM_VALUE(1.0f) + RANDOM_VALUE(1.0f
 		), -RANDOM_VALUE(1.0f) + RANDOM_VALUE(1.0f) });
 		particles.push_back(particle);
@@ -139,7 +139,7 @@ void CCarObjectShader::AnimateObjects(float elapsedTime, XMFLOAT3 playerPos) {
 				});
 
 			for (; particle != particleObject.end(); ++particle) {
-				(*particle)->SetMesh(particleBoxMesh);
+				(*particle)->SetMesh(0, particleBoxMesh);
 				particles.push_back((*particle));
 			}
 

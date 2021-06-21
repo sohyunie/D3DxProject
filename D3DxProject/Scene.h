@@ -27,6 +27,8 @@ public:
 	//그래픽 루트 시그너쳐를 생성한다. 
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
 	ID3D12RootSignature* GetGraphicsRootSignature();
+
+	CHeightMapTerrain *GetTerrain() { return(m_pTerrain); }
 protected:
 	//씬은 게임 객체들의 집합이다. 게임 객체는 셰이더를 포함한다. 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
@@ -35,4 +37,5 @@ protected:
 	std::vector<CInstancingShader*> m_pShaders{};
 	int m_nShaders = 0;
 	CPlayer* m_pPlayer;
+	CHeightMapTerrain* m_pTerrain = NULL;
 };
