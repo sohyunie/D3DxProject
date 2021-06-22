@@ -351,23 +351,23 @@ void CGameFramework::PresentFrameBuffer()
 	::ReleaseDC(m_hWnd, hDC);
 }
 
-
 void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
-	m_pScene = new CScene();
 
+	m_pScene = new CScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+
 	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList,
 		m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain(), 1);
-	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice,
+	/*CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice,
 		m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 
-	m_pPlayer = pAirplanePlayer;
+	m_pPlayer = pAirplanePlayer;*/
 	m_pCamera = m_pPlayer->GetCamera();
-	if (m_pScene) m_pScene->SetPlayer(m_pPlayer);
+	/*if (m_pScene) m_pScene->SetPlayer(m_pPlayer);
 	if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((VK_F3 - VK_F1 + 1),
-		m_GameTimer.GetTimeElapsed());
+		m_GameTimer.GetTimeElapsed());*/
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };

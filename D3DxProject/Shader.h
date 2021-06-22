@@ -48,6 +48,13 @@ public:
 protected:
 	ID3D12PipelineState** m_ppd3dPipelineStates = NULL;
 	int m_nPipelineStates = 0;
+
+
+	//인스턴스 데이터를 포함하는 버퍼와 포인터이다. 
+	ID3D12Resource* m_pd3dcbGameObjects = NULL;
+	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
+	std::vector<CGameObject*> m_ppObjects;
+	CGameObject** m_ppObjectsList = NULL;
 };
 
 class CPlayerShader : public CShader
@@ -68,7 +75,7 @@ class CObjectsShader : public CShader
 public:
 	CObjectsShader();
 	virtual ~CObjectsShader();
-	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
+	void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		* pd3dCommandList, void *pContext);
 	virtual void AnimateObjects(float fTimeElapsed, XMFLOAT3 playerPos);
 	virtual void ReleaseObjects();
@@ -84,8 +91,6 @@ public:
 	}
 	//CGameObject** Getm_ppObjects() { return m_ppObjects; }
 protected:
-	std::vector<CGameObject*> m_ppObjects;
-	CGameObject** m_ppObjectsList = NULL;
 };
 
 class CInstancingShader : public CObjectsShader
@@ -106,19 +111,18 @@ public:
 		* pd3dCommandList, void* pContext);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 protected:
-	//인스턴스 데이터를 포함하는 버퍼와 포인터이다. 
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
 };
 
-class CTerrainShader : public CShader
+class CTerrainShader : public CInstancingShader
 {
 public:
 	CTerrainShader();
 	virtual ~CTerrainShader();
+
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature
 		* pd3dGraphicsRootSignature);
 };

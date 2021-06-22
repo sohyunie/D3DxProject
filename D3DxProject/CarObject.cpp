@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CarObject.h"
+#include "GameObject.h"
 #include "Mesh.h"
 
 CCarObject::CCarObject() {
