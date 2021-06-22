@@ -2,7 +2,7 @@
 #include "Player.h"
 #include "Shader.h"
 
-CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
+CPlayer::CPlayer()
 {
 	m_pCamera = NULL;
 	m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -68,10 +68,8 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 		Move(xmf3Shift, bUpdateVelocity);
 	}
 }
-
 void CPlayer::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
-	XMFLOAT3 tempPosition;
 	//bUpdateVelocity가 참이면 플레이어를 이동하지 않고 속도 벡터를 변경한다. 
 	if (bUpdateVelocity)
 	{
@@ -81,14 +79,9 @@ void CPlayer::Move(XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	else
 	{
 		//플레이어를 현재 위치 벡터에서 xmf3Shift 벡터만큼 이동한다.
-		tempPosition = Vector3::Add(m_xmf3Position, xmf3Shift);
-
-		if (tempPosition.x > -150 && tempPosition.x < 150)
-		{
-			m_xmf3Position = tempPosition;
-			//플레이어의 위치가 변경되었으므로 카메라의 위치도 xmf3Shift 벡터만큼 이동한다. 
-			if (m_pCamera) m_pCamera->Move(xmf3Shift);
-		}
+		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+		//플레이어의 위치가 변경되었으므로 카메라의 위치도 xmf3Shift 벡터만큼 이동한다. 
+		if (m_pCamera) m_pCamera->Move(xmf3Shift);
 	}
 }
 //플레이어를 로컬 x-축, y-축, z-축을 중심으로 회전한다.
@@ -207,9 +200,7 @@ void CPlayer::Update(float fTimeElapsed)
 	//카메라의 위치가 변경될 때 추가로 수행할 작업을 수행한다. 
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	//카메라가 3인칭 카메라이면 카메라가 변경된 플레이어 위치를 바라보도록 한다. 
-	XMFLOAT3 lookAt = m_xmf3Position;
-	lookAt.y += 15;
-	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(lookAt);
+	if (nCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
 	//카메라의 카메라 변환 행렬을 다시 생성한다. 
 	m_pCamera->RegenerateViewMatrix();
 	/*플레이어의 속도 벡터가 마찰력 때문에 감속이 되어야 한다면 감속 벡터를 생성한다. 속도 벡터의 반대 방향 벡터를
@@ -316,26 +307,26 @@ void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 	}
 }
 
+
 CAirplanePlayer::CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
-	* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int nMeshes) :
-	CPlayer(nMeshes)
+	* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
+	//비행기 메쉬를 생성한다. 
 	CMesh* pAirplaneMesh = new CAirplaneMeshDiffused(pd3dDevice, pd3dCommandList, 20.0f,
-		20.0f, 4.0f, XMFLOAT4(0.5f, 0.0f, 0.0f, 0.0f));
-
-	SetMesh(0, pAirplaneMesh);
-	m_pCamera = ChangeCamera(SPACESHIP_CAMERA/*THIRD_PERSON_CAMERA*/, 0.0f);
-
+		20.0f, 4.0f, XMFLOAT4(0.0f, 0.5f, 0.0f, 0.0f));
+	SetMesh(pAirplaneMesh);
+	//플레이어의 카메라를 스페이스-쉽 카메라로 변경(생성)한다. 
+	m_pCamera = ChangeCamera(SPACESHIP_CAMERA, 0.0f);
+	//플레이어를 위한 셰이더 변수를 생성한다. 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-	XMFLOAT3 initPos = XMFLOAT3(0.0f, 0.0f, -50.0f);
-	SetPosition(initPos);
-
+	//플레이어의 위치를 설정한다. 
+	DirectX::XMFLOAT3 pos = XMFLOAT3(0.0f, 0.0f, -50.0f);
+	SetPosition(pos);
+	//플레이어(비행기) 메쉬를 렌더링할 때 사용할 셰이더를 생성한다.
 	CPlayerShader* pShader = new CPlayerShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 	SetShader(pShader);
 }
-
 CAirplanePlayer::~CAirplanePlayer()
 {
 }
@@ -412,142 +403,4 @@ CCamera* CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	//플레이어를 시간의 경과에 따라 갱신(위치와 방향을 변경: 속도, 마찰력, 중력 등을 처리)한다.
 	Update(fTimeElapsed);
 	return(m_pCamera);
-}
-
-CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
-	* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, int
-	nMeshes) : CPlayer(nMeshes)
-{
-	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
-
-	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
-
-	//플레이어의 위치를 지형의 가운데(y-축 좌표는 지형의 높이보다 1500 높게)로 설정한다. 플레이어 위치 벡터의 y좌표가 지형의 높이보다 크고 중력이 작용하도록 플레이어를 설정하였으므로 플레이어는 점차적으로 하강하게 된다.*/ 
-	float fHeight = pTerrain->GetHeight(pTerrain->GetWidth() * 0.5f,
-		pTerrain->GetLength() * 0.5f);
-
-	XMFLOAT3 initPos = XMFLOAT3(pTerrain->GetWidth() * 0.5f, fHeight + 1500.0f,
-		pTerrain->GetLength() * 0.5f);
-	SetPosition(initPos);
-
-	//플레이어의 위치가 변경될 때 지형의 정보에 따라 플레이어의 위치를 변경할 수 있도록 설정한다. 
-	SetPlayerUpdatedContext(pTerrain);
-
-	//카메라의 위치가 변경될 때 지형의 정보에 따라 카메라의 위치를 변경할 수 있도록 설정한다. 
-	SetCameraUpdatedContext(pTerrain);
-
-	CCubeMeshDiffused* pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
-		4.0f, 12.0f, 4.0f);
-	SetMesh(0, pCubeMesh);
-
-	//플레이어를 렌더링할 셰이더를 생성한다. 
-	CPlayerShader *pShader = new CPlayerShader();
-	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
-	SetShader(pShader);
-
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-}
-
-CTerrainPlayer::~CTerrainPlayer()
-{
-}
-
-CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
-{
-	DWORD nCurrentCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
-	if (nCurrentCameraMode == nNewCameraMode) return(m_pCamera);
-	XMFLOAT3 initPos;
-	switch (nNewCameraMode)
-	{
-	case FIRST_PERSON_CAMERA:
-		SetFriction(250.0f);
-		//1인칭 카메라일 때 플레이어에 y-축 방향으로 중력이 작용한다. 
-		initPos = XMFLOAT3(0.0f, -250.0f, 0.0f);
-		SetGravity(initPos);
-		SetMaxVelocityXZ(300.0f);
-		SetMaxVelocityY(400.0f);
-		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
-		m_pCamera->SetTimeLag(0.0f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, 0.0f));
-		m_pCamera->GenerateProjectionMatrix(1.01f, 50000.0f, ASPECT_RATIO, 60.0f);
-		break;
-	case SPACESHIP_CAMERA:
-		SetFriction(125.0f);
-		//스페이스 쉽 카메라일 때 플레이어에 중력이 작용하지 않는다. 
-		initPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		SetGravity(initPos);
-		SetMaxVelocityXZ(300.0f);
-		SetMaxVelocityY(400.0f);
-		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
-		m_pCamera->SetTimeLag(0.0f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		m_pCamera->GenerateProjectionMatrix(1.01f, 50000.0f, ASPECT_RATIO, 60.0f);
-		break;
-	case THIRD_PERSON_CAMERA:
-		SetFriction(250.0f);
-		//3인칭 카메라일 때 플레이어에 y-축 방향으로 중력이 작용한다.
-		initPos = XMFLOAT3(0.0f, -250.0f, 0.0f);
-		SetGravity(initPos);
-		SetMaxVelocityXZ(300.0f);
-		SetMaxVelocityY(400.0f);
-		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
-		m_pCamera->SetTimeLag(0.25f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, -50.0f));
-		m_pCamera->GenerateProjectionMatrix(1.01f, 50000.0f, ASPECT_RATIO, 60.0f);
-		break;
-	default:
-		break;
-	}
-	Update(fTimeElapsed);
-	return(m_pCamera);
-}
-
-void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
-{
-	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
-	/*높이 맵에서 카메라의 현재 위치 (x, z)에 대한 지형의 높이(y 값)를 구한다. 이 값이 카메라의 위치 벡터의 y-값 보
-	다 크면 카메라가 지형의 아래에 있게 된다. 이렇게 되면 다음 그림의 왼쪽과 같이 지형이 그려지지 않는 경우가 발생
-	한다(카메라가 지형 안에 있으므로 삼각형의 와인딩 순서가 바뀐다). 이러한 경우가 발생하지 않도록 카메라의 위치 벡
-	터의 y-값의 최소값은 (지형의 높이 + 5)로 설정한다. 카메라의 위치 벡터의 y-값의 최소값은 지형의 모든 위치에서
-	카메라가 지형 아래에 위치하지 않도록 설정해야 한다.*/
-	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pCameraUpdatedContext;
-	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z) +
-		5.0f;
-	if (xmf3CameraPosition.y <= fHeight)
-	{
-		xmf3CameraPosition.y = fHeight;
-		m_pCamera->SetPosition(xmf3CameraPosition);
-		if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA)
-		{
-			//3인칭 카메라의 경우 카메라 위치(y-좌표)가 변경되었으므로 카메라가 플레이어를 바라보도록 한다. 
-			CThirdPersonCamera *p3rdPersonCamera = (CThirdPersonCamera *)m_pCamera;
-			XMFLOAT3 pos = GetPosition();
-			p3rdPersonCamera->SetLookAt(pos);
-		}
-	}
-}
-
-void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
-{
-	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
-	/*높이 맵에서 카메라의 현재 위치 (x, z)에 대한 지형의 높이(y 값)를 구한다. 이 값이 카메라의 위치 벡터의 y-값 보
-	다 크면 카메라가 지형의 아래에 있게 된다. 이렇게 되면 다음 그림의 왼쪽과 같이 지형이 그려지지 않는 경우가 발생
-	한다(카메라가 지형 안에 있으므로 삼각형의 와인딩 순서가 바뀐다). 이러한 경우가 발생하지 않도록 카메라의 위치 벡
-	터의 y-값의 최소값은 (지형의 높이 + 5)로 설정한다. 카메라의 위치 벡터의 y-값의 최소값은 지형의 모든 위치에서
-	카메라가 지형 아래에 위치하지 않도록 설정해야 한다.*/
-	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pCameraUpdatedContext;
-	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z) +
-		5.0f;
-	if (xmf3CameraPosition.y <= fHeight)
-	{
-		xmf3CameraPosition.y = fHeight;
-		m_pCamera->SetPosition(xmf3CameraPosition);
-		if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA)
-		{
-			//3인칭 카메라의 경우 카메라 위치(y-좌표)가 변경되었으므로 카메라가 플레이어를 바라보도록 한다. 
-			CThirdPersonCamera *p3rdPersonCamera = (CThirdPersonCamera *)m_pCamera;
-			XMFLOAT3 curPos = GetPosition();
-			p3rdPersonCamera->SetLookAt(curPos);
-		}
-	}
 }

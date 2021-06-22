@@ -54,7 +54,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDepthStencilView();
 
 	BuildObjects();
-	//렌더링할 게임 객체를 생성한다.
+	//렌더링할 게임 객체를 생성한다. 
 	return(true);
 }
 
@@ -135,6 +135,7 @@ void CGameFramework::CreateSwapChain()
 	::GetClientRect(m_hWnd, &rcClient);
 	m_nWndClientWidth = rcClient.right - rcClient.left;
 	m_nWndClientHeight = rcClient.bottom - rcClient.top;
+
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
 	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
@@ -305,76 +306,20 @@ void CGameFramework::CreateDepthStencilView()
 	//깊이-스텐실 버퍼 뷰를 생성한다. 
 }
 
-void CGameFramework::PresentFrameBuffer()
-{
-	HDC hDC = ::GetDC(m_hWnd);
-	//::BitBlt(hDC, int(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), int(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), int(m_pPlayer->m_pCamera->m_d3dViewport.Width), int(m_pPlayer->m_pCamera->m_d3dViewport.Height), m_hDCFrameBuffer, int(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftX), int(m_pPlayer->m_pCamera->m_d3dViewport.TopLeftY), SRCCOPY);
-
-	// TODO: 여기에 그리기 코드를 추가합니다.
-	RECT window_rect;
-	RECT rect;
-	GetClientRect(m_hWnd, &window_rect);
-	rect = { 0, 0, window_rect.right, window_rect.bottom };
-	SetBkColor(hDC, RGB(0, 0, 0));
-	SetTextColor(hDC, RGB(255, 255, 255));
-
-
-	TCHAR tmp[40];
-
-	_stprintf_s(tmp, _T("HP : "));
-	DrawText(hDC, tmp, _tcslen(tmp), &rect, DT_SINGLELINE | DT_LEFT);
-	_stprintf_s(tmp, _T("%d"), m_pPlayer->m_hp);
-	TextOut(hDC, 30, 0, tmp, _tcslen(tmp));
-	rect.top += 20;
-
-	_stprintf_s(tmp, _T("COIN : "));
-	DrawText(hDC, tmp, _tcslen(tmp), &rect, DT_SINGLELINE | DT_LEFT);
-	_stprintf_s(tmp, _T("%d"), m_pPlayer->coin);
-	TextOut(hDC, 45, rect.top, tmp, _tcslen(tmp));
-
-	rect.top += 20;
-	_stprintf_s(tmp, _T("SPEED : "));
-	DrawText(hDC, tmp, _tcslen(tmp), &rect, DT_SINGLELINE | DT_LEFT);
-	_stprintf_s(tmp, _T("%d"), (int)m_pPlayer->m_speed);
-	TextOut(hDC, 58, rect.top, tmp, _tcslen(tmp));
-
-	if (m_pPlayer->m_bBooster) {
-		rect.top += 20;
-		_stprintf_s(tmp, _T("INVINCIBLE TIME : "));
-		DrawText(hDC, tmp, _tcslen(tmp), &rect, DT_SINGLELINE | DT_LEFT);
-		_stprintf_s(tmp, _T("%d"), (int)m_pPlayer->m_boostTime);
-		TextOut(hDC, 125, rect.top, tmp, _tcslen(tmp));
-	}
-
-
-
-	::ReleaseDC(m_hWnd, hDC);
-}
 
 void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
-
 	m_pScene = new CScene();
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
-
-	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList,
-		m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain(), 1);
-	/*CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice,
+	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice,
 		m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
-
-	m_pPlayer = pAirplanePlayer;*/
+	m_pPlayer = pAirplanePlayer;
 	m_pCamera = m_pPlayer->GetCamera();
-	/*if (m_pScene) m_pScene->SetPlayer(m_pPlayer);
-	if (m_pPlayer) m_pCamera = m_pPlayer->ChangeCamera((VK_F3 - VK_F1 + 1),
-		m_GameTimer.GetTimeElapsed());*/
-
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-
 	WaitForGpuComplete();
-
 	if (m_pScene) m_pScene->ReleaseUploadBuffers();
 	m_GameTimer.Reset();
 }
@@ -433,12 +378,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F9:
 			ChangeSwapChainState();
 			break;
-		case 'Q':
-			exit(0);
-			break;
-		case 'P':
-			m_isPause = (m_isPause) ? false : true;
-			break;
 		default:
 			break;
 		}
@@ -476,7 +415,6 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 }
 
 
-
 void CGameFramework::ProcessInput()
 {
 	static UCHAR pKeyBuffer[256];
@@ -485,32 +423,47 @@ void CGameFramework::ProcessInput()
 	뒤(로컬 z-축)로 이동한다. ‘Page Up’과 ‘Page Down’ 키를 누르면 플레이어를 위/아래(로컬 y-축)로 이동한다.*/
 	if (::GetKeyboardState(pKeyBuffer))
 	{
+		if (pKeyBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;
+		if (pKeyBuffer[VK_DOWN] & 0xF0) dwDirection |= DIR_BACKWARD;
 		if (pKeyBuffer[VK_LEFT] & 0xF0) dwDirection |= DIR_LEFT;
 		if (pKeyBuffer[VK_RIGHT] & 0xF0) dwDirection |= DIR_RIGHT;
+		if (pKeyBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
+		if (pKeyBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
 	}
 	float cxDelta = 0.0f, cyDelta = 0.0f;
 	POINT ptCursorPos;
-	
-	if (dwDirection) m_pPlayer->Move(dwDirection, m_pPlayer->m_speed * m_GameTimer.GetTimeElapsed(), false);
-
-	if (m_pPlayer->m_bBooster) {
-		m_pPlayer->m_boostTime -= m_GameTimer.GetTimeElapsed();
-		if (m_pPlayer->m_boostTime < 0) {
-			m_pPlayer->m_bBooster = false;
-			m_pPlayer->m_speed = SPEED_MAX;
+	/*마우스를 캡쳐했으면 마우스가 얼마만큼 이동하였는 가를 계산한다. 마우스 왼쪽 또는 오른쪽 버튼이 눌러질 때의
+	메시지(WM_LBUTTONDOWN, WM_RBUTTONDOWN)를 처리할 때 마우스를 캡쳐하였다. 그러므로 마우스가 캡쳐된
+	것은 마우스 버튼이 눌려진 상태를 의미한다. 마우스 버튼이 눌려진 상태에서 마우스를 좌우 또는 상하로 움직이면 플
+	레이어를 x-축 또는 y-축으로 회전한다.*/
+	if (::GetCapture() == m_hWnd)
+	{
+		//마우스 커서를 화면에서 없앤다(보이지 않게 한다).
+		::SetCursor(NULL);
+		//현재 마우스 커서의 위치를 가져온다. 
+		::GetCursorPos(&ptCursorPos);
+		//마우스 버튼이 눌린 상태에서 마우스가 움직인 양을 구한다.
+		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+		//마우스 커서의 위치를 마우스가 눌려졌던 위치로 설정한다. 
+		::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+	}
+	//마우스 또는 키 입력이 있으면 플레이어를 이동하거나(dwDirection) 회전한다(cxDelta 또는 cyDelta).
+	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+	{
+		if (cxDelta || cyDelta)
+		{
+			/*cxDelta는 y-축의 회전을 나타내고 cyDelta는 x-축의 회전을 나타낸다. 오른쪽 마우스 버튼이 눌려진 경우
+			cxDelta는 z-축의 회전을 나타낸다.*/
+			if (pKeyBuffer[VK_RBUTTON] & 0xF0)
+				m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+			else
+				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 		}
+		/*플레이어를 dwDirection 방향으로 이동한다(실제로는 속도 벡터를 변경한다). 이동 거리는 시간에 비례하도록 한다. 플레이어의 이동 속력은 (50/초)로 가정한다.*/
+		if (dwDirection) m_pPlayer->Move(dwDirection, 50.0f * m_GameTimer.GetTimeElapsed(),
+			true);
 	}
-
-	if (m_pPlayer->m_speed < SPEED_MAX) {
-		m_pPlayer->m_speed += m_GameTimer.GetTimeElapsed() * 15;
-	}
-
-	if (m_pPlayer->m_hp <= 0) {
-		exit(0);
-		//m_isPause = true;
-	}
-
-	
 	//플레이어를 실제로 이동하고 카메라를 갱신한다. 중력과 마찰력의 영향을 속도 벡터에 적용한다.
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
@@ -546,18 +499,8 @@ void CGameFramework::MoveToNextFrame()
 // #define _WITH_PLAYER_TOP
 void CGameFramework::FrameAdvance()
 {
-	if (m_isPause) return;
 	m_GameTimer.Tick(0.0f);
 	ProcessInput();
-
-	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
-	XMFLOAT3 dir = XMFLOAT3(0,0,1);
-	if (m_pPlayer) {
-		m_pPlayer->Move(DIR_FORWARD, m_pPlayer->m_speed * m_GameTimer.GetTimeElapsed(), false);
-		m_pPlayer->Animate(fTimeElapsed);
-	}
-		
-
 	AnimateObjects();
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
@@ -575,8 +518,7 @@ void CGameFramework::FrameAdvance()
 		m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex *
 		m_nRtvDescriptorIncrementSize);
-	float color = this->m_pPlayer->m_hp / 100.0f;
-	float pfClearColor[4] = { color, color, color, 1.0f };
+	float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle,
 		pfClearColor/*Colors::Azure*/, 0, NULL);
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle =
@@ -604,8 +546,6 @@ void CGameFramework::FrameAdvance()
 	WaitForGpuComplete();
 	m_pdxgiSwapChain->Present(0, 0);
 	MoveToNextFrame();
-
-	PresentFrameBuffer();
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
