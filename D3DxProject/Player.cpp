@@ -422,9 +422,9 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	CHeightMapTerrain * pTerrain = (CHeightMapTerrain*)pContext;
 	     //�÷��̾��� ��ġ�� ������ ���(y-�� ��ǥ�� ������ ���̺��� 1500 ���)�� �����Ѵ�. �÷��̾� ��ġ ������ y��ǥ�� ������ ���̺��� ũ�� �߷��� �ۿ��ϵ��� �÷��̾ �����Ͽ����Ƿ� �÷��̾�� ���������� �ϰ��ϰ� �ȴ�.*/ 
 	float fHeight = pTerrain->GetHeight(pTerrain->GetWidth() * 0.5f,
-		-pTerrain->GetLength() * 0.5f);
+		pTerrain->GetLength() * 0.5f);
 	XMFLOAT3 setPos_TerrainPlayer = XMFLOAT3(pTerrain->GetWidth() * 0.5f, fHeight + 300.0f,
-	-pTerrain->GetLength() * 0.5f);
+	pTerrain->GetLength() * 0.5f);
 	SetPosition(setPos_TerrainPlayer);
 	     //�÷��̾��� ��ġ�� ����� �� ������ ������ ���� �÷��̾��� ��ġ�� ������ �� �ֵ��� �����Ѵ�. 
 	SetPlayerUpdatedContext(pTerrain);

@@ -306,7 +306,8 @@ CHeightMapTerrain::~CHeightMapTerrain(void)
 
 CAirplaneObject::CAirplaneObject(int nMeshes)
 {
-	CGameObject::CGameObject(nMeshes);
+	m_xmf4x4Transform = Matrix4x4::Identity();
+	m_xmf4x4World = Matrix4x4::Identity();
 }
 
 CAirplaneObject::~CAirplaneObject()
