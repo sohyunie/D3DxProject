@@ -4,6 +4,7 @@
 class CShader;
 class CGameObject;
 class CCamera;
+class CPlayer;
 
 #define MAX_LIGHTS			16 
 
@@ -66,6 +67,7 @@ protected:
 protected:
 	CHeightMapTerrain* m_pTerrain = NULL;
 public:
+	CPlayer* m_pPlayer = NULL;
 	CHeightMapTerrain* GetTerrain() { return(m_pTerrain); }
 
 	LIGHT* m_pLights = NULL;

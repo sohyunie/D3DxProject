@@ -89,66 +89,66 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 
 
-	//m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
+	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	//CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
+	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
-	//BuildDefaultLightsAndMaterials();
+	BuildDefaultLightsAndMaterials();
 
-	//m_nGameObjects = 5;
-	//m_ppGameObjects = new CAirplaneObject * [m_nGameObjects];
+	m_nGameObjects = 5;
+	m_ppGameObjects = new CAirplaneObject * [m_nGameObjects];
 
-	//CAirplaneObject* pApacheModel = CAirplaneObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Apache.bin");
-	//CApacheObject* pApacheObject = NULL;
+	CAirplaneObject* pApacheModel = CAirplaneObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Apache.bin");
+	CApacheObject* pApacheObject = NULL;
 
-	//pApacheObject = new CApacheObject();
-	//pApacheObject->SetChild(pApacheModel, true);
-	//pApacheObject->OnInitialize();
-	//pApacheObject->SetPosition(+130.0f, 0.0f, 160.0f);
-	//pApacheObject->SetScale(1.5f, 1.5f, 1.5f);
-	//pApacheObject->Rotate(0.0f, 90.0f, 0.0f);
-	//m_ppGameObjects[0] = pApacheObject;
+	pApacheObject = new CApacheObject();
+	pApacheObject->SetChild(pApacheModel, true);
+	pApacheObject->OnInitialize();
+	pApacheObject->SetPosition(+130.0f, 0.0f, 160.0f);
+	pApacheObject->SetScale(1.5f, 1.5f, 1.5f);
+	pApacheObject->Rotate(0.0f, 90.0f, 0.0f);
+	m_ppGameObjects[0] = pApacheObject;
 
-	//pApacheObject = new CApacheObject();
-	//pApacheObject->SetChild(pApacheModel, true);
-	//pApacheObject->OnInitialize();
-	//pApacheObject->SetPosition(-75.0f, 0.0f, 80.0f);
-	//pApacheObject->SetScale(1.5f, 1.5f, 1.5f);
-	//pApacheObject->Rotate(0.0f, -90.0f, 0.0f);
-	//m_ppGameObjects[1] = pApacheObject;
+	pApacheObject = new CApacheObject();
+	pApacheObject->SetChild(pApacheModel, true);
+	pApacheObject->OnInitialize();
+	pApacheObject->SetPosition(-75.0f, 0.0f, 80.0f);
+	pApacheObject->SetScale(1.5f, 1.5f, 1.5f);
+	pApacheObject->Rotate(0.0f, -90.0f, 0.0f);
+	m_ppGameObjects[1] = pApacheObject;
 
-	//CAirplaneObject* pGunshipModel = CAirplaneObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Gunship.bin");
-	//CGunshipObject* pGunshipObject = NULL;
+	CAirplaneObject* pGunshipModel = CAirplaneObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Gunship.bin");
+	CGunshipObject* pGunshipObject = NULL;
 
-	//pGunshipObject = new CGunshipObject();
-	//pGunshipObject->SetChild(pGunshipModel, true);
-	//pGunshipObject->OnInitialize();
-	//pGunshipObject->SetPosition(135.0f, 40.0f, 220.0f);
-	//pGunshipObject->SetScale(8.5f, 8.5f, 8.5f);
-	//pGunshipObject->Rotate(0.0f, -90.0f, 0.0f);
-	//m_ppGameObjects[2] = pGunshipObject;
+	pGunshipObject = new CGunshipObject();
+	pGunshipObject->SetChild(pGunshipModel, true);
+	pGunshipObject->OnInitialize();
+	pGunshipObject->SetPosition(135.0f, 40.0f, 220.0f);
+	pGunshipObject->SetScale(8.5f, 8.5f, 8.5f);
+	pGunshipObject->Rotate(0.0f, -90.0f, 0.0f);
+	m_ppGameObjects[2] = pGunshipObject;
 
-	//CAirplaneObject* pSuperCobraModel = CAirplaneObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/SuperCobra.bin");
-	//CSuperCobraObject* pSuperCobraObject = NULL;
+	CAirplaneObject* pSuperCobraModel = CAirplaneObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/SuperCobra.bin");
+	CSuperCobraObject* pSuperCobraObject = NULL;
 
-	//pSuperCobraObject = new CSuperCobraObject();
-	//pSuperCobraObject->SetChild(pSuperCobraModel, true);
-	//pSuperCobraObject->OnInitialize();
-	//pSuperCobraObject->SetPosition(95.0f, 50.0f, 50.0f);
-	//pSuperCobraObject->SetScale(4.5f, 4.5f, 4.5f);
-	//pSuperCobraObject->Rotate(0.0f, -90.0f, 0.0f);
-	//m_ppGameObjects[3] = pSuperCobraObject;
+	pSuperCobraObject = new CSuperCobraObject();
+	pSuperCobraObject->SetChild(pSuperCobraModel, true);
+	pSuperCobraObject->OnInitialize();
+	pSuperCobraObject->SetPosition(95.0f, 50.0f, 50.0f);
+	pSuperCobraObject->SetScale(4.5f, 4.5f, 4.5f);
+	pSuperCobraObject->Rotate(0.0f, -90.0f, 0.0f);
+	m_ppGameObjects[3] = pSuperCobraObject;
 
-	//CAirplaneObject* pMi24Model = CAirplaneObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Mi24.bin");
-	//CMi24Object* pMi24Object = NULL;
+	CAirplaneObject* pMi24Model = CAirplaneObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Mi24.bin");
+	CMi24Object* pMi24Object = NULL;
 
-	//pMi24Object = new CMi24Object();
-	//pMi24Object->SetChild(pMi24Model, true);
-	//pMi24Object->OnInitialize();
-	//pMi24Object->SetPosition(-95.0f, 50.0f, 50.0f);
-	//pMi24Object->SetScale(4.5f, 4.5f, 4.5f);
-	//pMi24Object->Rotate(0.0f, -90.0f, 0.0f);
-	//m_ppGameObjects[4] = pMi24Object;
+	pMi24Object = new CMi24Object();
+	pMi24Object->SetChild(pMi24Model, true);
+	pMi24Object->OnInitialize();
+	pMi24Object->SetPosition(-95.0f, 50.0f, 50.0f);
+	pMi24Object->SetScale(4.5f, 4.5f, 4.5f);
+	pMi24Object->Rotate(0.0f, -90.0f, 0.0f);
+	m_ppGameObjects[4] = pMi24Object;
 }
 
 void CScene::ReleaseObjects()
