@@ -90,21 +90,6 @@ XMFLOAT3& CPlayer::GetVelocity()
 	return m_xmf3Velocity;
 }
 
-float CPlayer::GetYaw()
-{
-	return m_fYaw;
-}
-
-float CPlayer::GetPitch()
-{
-	return m_fPitch;
-}
-
-float CPlayer::GetRoll()
-{
-	return m_fRoll;
-}
-
 void CPlayer::SetCamera(CCamera* pCamera)
 {
 	m_pCamera = pCamera;
@@ -149,6 +134,8 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
 		}
+		if (!this->isDie)
+			Move(xmf3Shift, bUpdateVelocity);
 	}
 }
 
@@ -585,7 +572,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//플레이어의 위치를 지형의 가운데(y-축 좌표는 지형의 높이보다 1500 높게)로 설정한다. 플레이어 위치 벡터의 y좌표가 지형의 높이보다 크고 중력이 작용하도록 플레이어를 설정하였으므로 플레이어는 점차적으로 하강하게 된다.*/
 	float fHeight = pTerrain->GetHeight(pTerrain->GetWidth() * 0.5f,
 		pTerrain->GetLength() * 0.5f);
-	XMFLOAT3 setPos_TerrainPlayer = XMFLOAT3(pTerrain->GetWidth() * 0.5f, fHeight + 400.0f,
+	XMFLOAT3 setPos_TerrainPlayer = XMFLOAT3(pTerrain->GetWidth() * 0.5f, fHeight + 100.0f,
 		pTerrain->GetLength() * 0.5f);
 	SetPosition(setPos_TerrainPlayer);
 	//플레이어의 위치가 변경될 때 지형의 정보에 따라 플레이어의 위치를 변경할 수 있도록 설정한다.
@@ -613,6 +600,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	SetShader(pShader);
+	XMFLOAT3 changeColor = XMFLOAT3(0.4f, 0.4f, 0.4f);
+	this->SetColor(changeColor);
 }
 
 CTerrainPlayer::~CTerrainPlayer()

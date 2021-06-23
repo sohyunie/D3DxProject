@@ -484,7 +484,7 @@ void CGameFramework::ProcessInput()
 		// 이동 거리는 시간에 비례하도록 한다. 플레이어의 이동 속력은 (50/초)로 가정한다.
 		if (dwDirection)
 		{
-			m_pPlayer->Move(dwDirection, 1000.0f * m_GameTimer.GetTimeElapsed(), true);
+			m_pPlayer->Move(dwDirection, 200.0f * m_GameTimer.GetTimeElapsed(), false);
 		}
 	}
 
@@ -594,7 +594,7 @@ void CGameFramework::FrameAdvance()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
-	float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
+	float pfClearColor[4] = { 0.3f, 0.8f, 0.3f, 1.0f };
 
 	// 원하는 색상으로 렌더 타겟(뷰)을 지운다.
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);

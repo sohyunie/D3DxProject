@@ -72,9 +72,6 @@ public:
 	void LookAt(XMFLOAT3& xmf3LookAt, XMFLOAT3& xmf3Up);
 
 	XMFLOAT3& GetVelocity();
-	float GetYaw();
-	float GetPitch();
-	float GetRoll();
 
 	void SetCamera(CCamera* pCamera);
 	CCamera* GetCamera();

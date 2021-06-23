@@ -21,7 +21,6 @@ public:
 
 	XMFLOAT3					m_xmf3MovingDirection;
 	float						m_fMovingSpeed;
-	float						m_fMovingRange;
 	XMFLOAT4X4 m_xmf4x4World{};
 private:
 	int m_nReferences{};
@@ -75,7 +74,6 @@ public:
 		m_xmf3MovingDirection = Vector3::Normalize(xmf3MovingDirection);
 	}
 	void SetMovingSpeed(float fSpeed) { m_fMovingSpeed = fSpeed; }
-	void SetMovingRange(float fRange) { m_fMovingRange = fRange; }
 	void Move(XMFLOAT3& vDirection, float fSpeed);
 	void UpdateBoundingBox();
 };

@@ -56,13 +56,15 @@ CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 		{
 			InFile >> m_nVertices;
 			m_pxmf3Positions = new XMFLOAT3[m_nVertices];
-			for (UINT i = 0; i < m_nVertices; i++) InFile >> m_pxmf3Positions[i].x >> m_pxmf3Positions[i].y >> m_pxmf3Positions[i].z;
+			for (UINT i = 0; i < m_nVertices; i++) 
+				InFile >> m_pxmf3Positions[i].x >> m_pxmf3Positions[i].y >> m_pxmf3Positions[i].z;
 		}
 		else if (!strcmp(pstrToken, "I:"))
 		{
 			InFile >> m_nIndices;
 			m_pnIndices = new UINT[m_nIndices];
-			for (UINT i = 0; i < m_nIndices; i++) InFile >> m_pnIndices[i];
+			for (UINT i = 0; i < m_nIndices; i++) 
+				InFile >> m_pnIndices[i];
 		}
 	}
 
@@ -136,89 +138,6 @@ void CMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList)
 		// 메쉬의 정점 버퍼 뷰를 렌더링한다.(파이프라인(입력 조립기)을 작동하게 한다)
 		pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 	}
-}
-
-void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, bool bTextFile)
-{
-	char pstrToken[64] = { '\0' };
-
-	if (bTextFile)
-	{
-		std::ifstream InFile(pstrFileName);
-
-		for (; ; )
-		{
-			InFile >> pstrToken;
-			if (!InFile) break;
-
-			if (!strcmp(pstrToken, "<Vertices>:"))
-			{
-				InFile >> m_nVertices;
-				m_pxmf3Positions = new XMFLOAT3[m_nVertices];
-				for (UINT i = 0; i < m_nVertices; i++) InFile >> m_pxmf3Positions[i].x >> m_pxmf3Positions[i].y >> m_pxmf3Positions[i].z;
-			}
-			else if (!strcmp(pstrToken, "<Normals>:"))
-			{
-				InFile >> pstrToken;
-				m_pxmf3Normals = new XMFLOAT3[m_nVertices];
-				for (UINT i = 0; i < m_nVertices; i++) InFile >> m_pxmf3Normals[i].x >> m_pxmf3Normals[i].y >> m_pxmf3Normals[i].z;
-			}
-			else if (!strcmp(pstrToken, "<TextureCoords>:"))
-			{
-				InFile >> pstrToken;
-				m_pxmf2TextureCoords = new XMFLOAT2[m_nVertices];
-				for (UINT i = 0; i < m_nVertices; i++) InFile >> m_pxmf2TextureCoords[i].x >> m_pxmf2TextureCoords[i].y;
-			}
-			else if (!strcmp(pstrToken, "<Indices>:"))
-			{
-				InFile >> m_nIndices;
-				m_pnIndices = new UINT[m_nIndices];
-				for (UINT i = 0; i < m_nIndices; i++) InFile >> m_pnIndices[i];
-			}
-		}
-	}
-	else
-	{
-		FILE* pFile = NULL;
-		::fopen_s(&pFile, pstrFileName, "rb");
-		::rewind(pFile);
-
-		char pstrToken[64] = { '\0' };
-
-		BYTE nStrLength = 0;
-		UINT nReads = 0;
-
-		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
-		nReads = (UINT)::fread(pstrToken, sizeof(char), 14, pFile); //"<BoundingBox>:"
-		nReads = (UINT)::fread(&m_xmOOBB.Center, sizeof(float), 3, pFile);
-		nReads = (UINT)::fread(&m_xmOOBB.Extents, sizeof(float), 3, pFile);
-
-		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
-		nReads = (UINT)::fread(pstrToken, sizeof(char), 11, pFile); //"<Vertices>:"
-		nReads = (UINT)::fread(&m_nVertices, sizeof(int), 1, pFile);
-		m_pxmf3Positions = new XMFLOAT3[m_nVertices];
-		nReads = (UINT)::fread(m_pxmf3Positions, sizeof(float), 3 * m_nVertices, pFile);
-
-		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
-		nReads = (UINT)::fread(pstrToken, sizeof(char), 10, pFile); //"<Indices>:"
-		nReads = (UINT)::fread(&m_nIndices, sizeof(int), 1, pFile);
-		m_pnIndices = new UINT[m_nIndices];
-		nReads = (UINT)::fread(m_pnIndices, sizeof(UINT), m_nIndices, pFile);
-
-		::fclose(pFile);
-	}
-
-	m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
-
-	m_d3dVertexBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
-	m_d3dVertexBufferView.StrideInBytes = sizeof(XMFLOAT3);
-	m_d3dVertexBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
-
-	m_pd3dIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pnIndices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
-
-	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
-	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
-	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
 }
 
 

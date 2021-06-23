@@ -15,7 +15,6 @@ CGameObject::CGameObject(int nMeshes)
 	}
 	m_xmf3MovingDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_fMovingSpeed = 0.0f;
-	m_fMovingRange = 0.0f;
 }
 CGameObject::~CGameObject()
 {
@@ -233,12 +232,13 @@ void CEnemyObject::SetTarget(CPlayer* target)
 
 void CEnemyObject::Animate(float fTimeElapsed)
 {
+	CGameObject::Animate(fTimeElapsed);
 	if (targetPlayer != nullptr) {
 		XMFLOAT3 myPos = GetPosition();
 		XMFLOAT3 targetPos = targetPlayer->GetPosition();
 		XMFLOAT3 moveVector = Vector3::Subtract(targetPos, myPos);
 		XMFLOAT3 moveVectorNorm = Vector3::Normalize(moveVector);
-		this->Move(moveVectorNorm, 0.5f);
+		this->Move(moveVectorNorm, 0.8f);
 	}
 }
 
@@ -322,6 +322,5 @@ void CBulletObject::Animate(float fElapsedTime)
 
 
 	if(this->isActive)
-		this->Move(this->m_xmf3MovingDirection, 2.0f);
-
+		this->Move(this->m_xmf3MovingDirection, 3.0f);
 }

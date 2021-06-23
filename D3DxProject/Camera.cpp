@@ -6,16 +6,32 @@ CCamera::CCamera()
 {
 
 }
-
 CCamera::CCamera(CCamera* pCamera)
 {
 	if (pCamera)
 	{
-		// 카메라가 이미 있으면 기존 카메라의 정보를 새로운 카메라에 복사한다.
 		*this = *pCamera;
 	}
+	else
+	{
+		m_xmf4x4View = Matrix4x4::Identity();
+		m_xmf4x4Projection = Matrix4x4::Identity();
+		m_d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+		m_d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+		m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
+		m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+		m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		m_fPitch = 0.0f;
+		m_fRoll = 0.0f;
+		m_fYaw = 0.0f;
+		m_xmf3Offset = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		m_fTimeLag = 0.0f;
+		m_xmf3LookAtWorld = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		m_nMode = 0x00;
+		m_pPlayer = NULL;
+	}
 }
-
 CCamera::~CCamera()
 {
 
@@ -423,7 +439,10 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 		//카메라 오프셋 벡터를 회전 행렬로 변환(회전)한다. 
 		XMFLOAT3 xmf3Offset = Vector3::TransformCoord(m_xmf3Offset, matrix);
 		//회전한 카메라의 위치는 플레이어의 위치에 회전한 카메라 오프셋 벡터를 더한 것이다.
-		XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
+		XMFLOAT3 pos = m_pPlayer->GetPosition();
+		pos.y += 50;
+		pos.z += -150;
+		XMFLOAT3 xmf3Position = Vector3::Add(pos, xmf3Offset);
 		//현재의 카메라의 위치에서 회전한 카메라의 위치까지의 방향과 거리를 나타내는 벡터이다.
 		XMFLOAT3 xmf3Direction = Vector3::Subtract(xmf3Position, m_xmf3Position);
 		float fLength = Vector3::Length(xmf3Direction);
