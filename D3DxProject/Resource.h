@@ -1,11 +1,11 @@
 ﻿//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++에서 생성한 포함 파일입니다.
-// 다음에서 사용 D3DxProject.rc
+// 다음에서 사용 LabProject11.rc
 
 #define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
-#define IDD_D3DXPROJECT_DIALOG	102
+#define IDD_LABPROJECT11_DIALOG	102
 #define IDD_ABOUTBOX			103
 #define IDM_ABOUT				104
 #define IDM_EXIT				105

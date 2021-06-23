@@ -42,10 +42,11 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "winmm.lib")
 #define FRAME_BUFFER_WIDTH 640
 #define FRAME_BUFFER_HEIGHT 480
-#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
+//#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
 /*정점의 색상을 무작위로(Random) 설정하기 위해 사용한다. 각 정점의 색상은 난수(Random Number)를 생성하여 지정한다.*/
 #define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+#define EPSILON 1.0e-10f
 
 extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice,
 	ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE
@@ -53,6 +54,12 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice,
 	D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer =
 	NULL);
 
+inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
+inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
+inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
+inline void Swap(float* pfS, float* pfT) {
+	float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp;
+}
 
 //3차원 벡터의 연산 
 namespace Vector3
@@ -63,6 +70,7 @@ namespace Vector3
 		XMStoreFloat3(&xmf3Result, xmvVector);
 		return(xmf3Result);
 	}
+
 	inline XMFLOAT3 ScalarProduct(XMFLOAT3& xmf3Vector, float fScalar, bool bNormalize =
 		true)
 	{
@@ -73,30 +81,35 @@ namespace Vector3
 			XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector) * fScalar);
 		return(xmf3Result);
 	}
+
 	inline XMFLOAT3 Add(const XMFLOAT3& xmf3Vector1, const XMFLOAT3& xmf3Vector2)
 	{
 		XMFLOAT3 xmf3Result;
 		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) + XMLoadFloat3(&xmf3Vector2));
 		return(xmf3Result);
 	}
+
 	inline XMFLOAT3 Add(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, float fScalar)
 	{
 		XMFLOAT3 xmf3Result;
 		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) + (XMLoadFloat3(&xmf3Vector2) * fScalar));
 		return(xmf3Result);
 	}
+
 	inline XMFLOAT3 Subtract(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
 	{
 		XMFLOAT3 xmf3Result;
 		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2));
 		return(xmf3Result);
 	}
+
 	inline float DotProduct(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
 	{
 		XMFLOAT3 xmf3Result;
 		XMStoreFloat3(&xmf3Result, XMVector3Dot(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
 		return(xmf3Result.x);
 	}
+
 	inline XMFLOAT3 CrossProduct(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, bool
 		bNormalize = true)
 	{
@@ -107,27 +120,32 @@ namespace Vector3
 			XMStoreFloat3(&xmf3Result, XMVector3Cross(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
 		return(xmf3Result);
 	}
+
 	inline XMFLOAT3 Normalize(XMFLOAT3& xmf3Vector)
 	{
 		XMFLOAT3 m_xmf3Normal;
 		XMStoreFloat3(&m_xmf3Normal, XMVector3Normalize(XMLoadFloat3(&xmf3Vector)));
 		return(m_xmf3Normal);
 	}
+
 	inline float Length(XMFLOAT3& xmf3Vector)
 	{
 		XMFLOAT3 xmf3Result;
 		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
 		return(xmf3Result.x);
 	}
+
 	inline float Angle(XMVECTOR& xmvVector1, XMVECTOR& xmvVector2)
 	{
 		XMVECTOR xmvAngle = XMVector3AngleBetweenNormals(xmvVector1, xmvVector2);
 		return(XMConvertToDegrees(acosf(XMVectorGetX(xmvAngle))));
 	}
+
 	/*inline float Angle(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
 	{
 		return(Angle(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
 	}*/
+
 	inline XMFLOAT3 TransformNormal(XMFLOAT3& xmf3Vector, XMMATRIX& xmmtxTransform)
 	{
 		XMFLOAT3 xmf3Result;
@@ -140,10 +158,19 @@ namespace Vector3
 		XMStoreFloat3(&xmf3Result, XMVector3TransformCoord(XMLoadFloat3(&xmf3Vector), xmmtxTransform));
 		return(xmf3Result);
 	}
+
 	/*inline XMFLOAT3 TransformCoord(XMFLOAT3& xmf3Vector, XMFLOAT4X4& xmmtx4x4Matrix)
 	{
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
 	}*/
+
+	//3-차원 벡터가 영벡터인 가를 반환하는 함수이다. 
+	inline bool IsZero(XMFLOAT3& xmf3Vector)
+	{
+		if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))
+			return(true);
+		return(false);
+	}
 }
 
 //4차원 벡터의 연산

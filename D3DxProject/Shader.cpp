@@ -264,38 +264,53 @@ void CObjectsShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature
 
 
 void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
-	* pd3dCommandList)
+	* pd3dCommandList, void* pContext)
 {
-	//가로x세로x높이가 12x12x12인 정육면체 메쉬를 생성한다.
-	CCubeMeshDiffused* pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
-		12.0f, 12.0f, 12.0f);
-	/*x-축, y-축, z-축 양의 방향의 객체 개수이다. 각 값을 1씩 늘리거나 줄이면서 실행할 때 프레임 레이트가 어떻게
-	변하는 가를 살펴보기 바란다.*/
-	int xObjects = 10, yObjects = 10, zObjects = 10, i = 0;
-	//x-축, y-축, z-축으로 21개씩 총 21 x 21 x 21 = 9261개의 정육면체를 생성하고 배치한다. 
-	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1);
-	m_ppObjects = new CGameObject * [m_nObjects];
-	float fxPitch = 12.0f * 2.5f;
-	float fyPitch = 12.0f * 2.5f;
-	float fzPitch = 12.0f * 2.5f;
-	CRotatingObject* pRotatingObject = NULL;
-	for (int x = -xObjects; x <= xObjects; x++)
-	{
-		for (int y = -yObjects; y <= yObjects; y++)
-		{
-			for (int z = -zObjects; z <= zObjects; z++)
-			{
-				pRotatingObject = new CRotatingObject();
-				pRotatingObject->SetMesh(pCubeMesh);
-				//각 정육면체 객체의 위치를 설정한다. 
-				pRotatingObject->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
-				pRotatingObject->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-				pRotatingObject->SetRotationSpeed(10.0f * (i % 10) + 3.0f);
-				m_ppObjects[i++] = pRotatingObject;
-			}
-		}
-	}
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	//CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
+	//float fTerrainWidth = pTerrain->GetWidth(), fTerrainLength = pTerrain->GetLength();
+	//float fxPitch = 12.0f * 3.5f;
+	//float fyPitch = 12.0f * 3.5f;
+	//float fzPitch = 12.0f * 3.5f;
+	////직육면체를 지형 표면에 그리고 지형보다 높은 위치에 일정한 간격으로 배치한다. 
+	//int xObjects = int(fTerrainWidth / fxPitch), yObjects = 2, zObjects = 
+	//int(fTerrainLength / fzPitch);
+	//m_nObjects = xObjects * yObjects * zObjects;
+	//m_ppObjects = new CGameObject * [m_nObjects];
+	//CCubeMeshDiffused* pCubeMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList,
+	//	12.0f, 12.0f, 12.0f);
+	//XMFLOAT3 xmf3RotateAxis, xmf3SurfaceNormal;
+	//CRotatingObject* pRotatingObject = NULL; for (int i = 0, x = 0; x < xObjects; x++)
+	//{
+	//	for (int z = 0; z < zObjects; z++)
+	//	{
+	//		for (int y = 0; y < yObjects; y++)
+	//		{
+	//			pRotatingObject = new CRotatingObject(1);
+	//			pRotatingObject->SetMesh(0, pCubeMesh);
+	//			float xPosition = x * fxPitch;
+	//			float zPosition = z * fzPitch;
+	//			float fHeight = pTerrain->GetHeight(xPosition, zPosition);
+	//			pRotatingObject->SetPosition(xPosition, fHeight + (y * 10.0f * fyPitch) +
+	//				6.0f, zPosition);
+	//			if (y == 0)
+	//			{
+	//				/*지형의 표면에 위치하는 직육면체는 지형의 기울기에 따라 방향이 다르게 배치한다. 직육면체가 위치할 지형의 법선
+	//				벡터 방향과 직육면체의 y-축이 일치하도록 한다.*/
+	//				xmf3SurfaceNormal = pTerrain->GetNormal(xPosition, zPosition);
+	//				XMFLOAT3 rotateAxis = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	//				xmf3RotateAxis = Vector3::CrossProduct(rotateAxis, xmf3SurfaceNormal);
+	//				if (Vector3::IsZero(xmf3RotateAxis)) xmf3RotateAxis = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	//				XMFLOAT3 angle = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	//				float fAngle = acos(Vector3::DotProduct(angle, xmf3SurfaceNormal));
+	//				pRotatingObject->Rotate(&xmf3RotateAxis, XMConvertToDegrees(fAngle));
+	//			}
+	//			pRotatingObject->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
+	//			pRotatingObject->SetRotationSpeed(36.0f * (i % 10) + 36.0f);
+	//			m_ppObjects[i++] = pRotatingObject;
+	//		}
+	//	}
+	//}
+	//CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CObjectsShader::ReleaseObjects()
@@ -340,4 +355,41 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	}
 }
 
+CTerrainShader::CTerrainShader()
+{
+}
+CTerrainShader::~CTerrainShader()
+{
+}
 
+D3D12_INPUT_LAYOUT_DESC CTerrainShader::CreateInputLayout()
+{
+	UINT nInputElementDescs = 2;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new
+		D3D12_INPUT_ELEMENT_DESC[nInputElementDescs]; pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
+		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12,
+	D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+	return(d3dInputLayoutDesc);
+}
+
+D3D12_SHADER_BYTECODE CTerrainShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSDiffused", "vs_5_1",
+		ppd3dShaderBlob));
+}
+D3D12_SHADER_BYTECODE CTerrainShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSDiffused", "ps_5_1",
+		ppd3dShaderBlob));
+}
+void CTerrainShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature
+	* pd3dGraphicsRootSignature)
+{
+	m_nPipelineStates = 1;
+	m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];
+	CShader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
+}
