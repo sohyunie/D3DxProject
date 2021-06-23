@@ -1,126 +1,34 @@
 #include "stdafx.h"
-#include "Player.h"
 #include "Camera.h"
+#include "Player.h"
 
 CCamera::CCamera()
 {
-	m_xmf4x4View = Matrix4x4::Identity();
-	m_xmf4x4Projection = Matrix4x4::Identity();
-	m_d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
-	m_d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
-	m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
-	m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	m_fPitch = 0.0f;
-	m_fRoll = 0.0f;
-	m_fYaw = 0.0f;
-	m_xmf3Offset = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_fTimeLag = 0.0f;
-	m_xmf3LookAtWorld = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_nMode = 0x00;
-	m_pPlayer = NULL;
+
 }
 
 CCamera::CCamera(CCamera* pCamera)
 {
 	if (pCamera)
 	{
-		//카메라가 이미 있으면 기존 카메라의 정보를 새로운 카메라에 복사한다. 
+		// 카메라가 이미 있으면 기존 카메라의 정보를 새로운 카메라에 복사한다.
 		*this = *pCamera;
 	}
-	else
-	{
-		//카메라가 없으면 기본 정보를 설정한다. 
-		m_xmf4x4View = Matrix4x4::Identity();
-		m_xmf4x4Projection = Matrix4x4::Identity();
-		m_d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
-		m_d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
-		m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
-		m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
-		m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-		m_fPitch = 0.0f;
-		m_fRoll = 0.0f;
-		m_fYaw = 0.0f;
-		m_xmf3Offset = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		m_fTimeLag = 0.0f;
-		m_xmf3LookAtWorld = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		m_nMode = 0x00;
-		m_pPlayer = NULL;
-	}
 }
 
-CCamera::~CCamera() {
-
-}
-
-void CCamera::SetViewport(int xTopLeft, int yTopLeft, int nWidth, int nHeight, float
-	fMinZ, float fMaxZ)
+CCamera::~CCamera()
 {
-	m_d3dViewport.TopLeftX = float(xTopLeft);
-	m_d3dViewport.TopLeftY = float(yTopLeft);
-	m_d3dViewport.Width = float(nWidth);
-	m_d3dViewport.Height = float(nHeight);
-	m_d3dViewport.MinDepth = fMinZ;
-	m_d3dViewport.MaxDepth = fMaxZ;
-}
-void CCamera::SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom)
-{
-	m_d3dScissorRect.left = xLeft;
-	m_d3dScissorRect.top = yTop;
-	m_d3dScissorRect.right = xRight;
-	m_d3dScissorRect.bottom = yBottom;
+
 }
 
-void CCamera::GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlaneDistance,
-	float fAspectRatio, float fFOVAngle)
+void CCamera::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	m_xmf4x4Projection = Matrix4x4::PerspectiveFovLH(XMConvertToRadians(fFOVAngle),
-		fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
+
 }
 
-
-
-void CCamera::GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFLOAT3
-	xmf3Up)
+void CCamera::ReleaseShaderVariables()
 {
-	m_xmf3Position = xmf3Position;
-	m_xmf3LookAtWorld = xmf3LookAt;
-	m_xmf3Up = xmf3Up;
-	GenerateViewMatrix();
-}
 
-/*카메라 변환 행렬을 생성한다. 카메라의 위치 벡터, 카메라가 바라보는 지점, 카메라의 Up 벡터(로컬 y-축 벡터)를
-파라메터로 사용하는 XMMatrixLookAtLH() 함수를 사용한다.*/
-void CCamera::GenerateViewMatrix()
-{
-	m_xmf4x4View = Matrix4x4::LookAtLH(m_xmf3Position, m_xmf3LookAtWorld, m_xmf3Up);
-}
-
-void CCamera::RegenerateViewMatrix()
-{
-	//카메라의 z-축을 기준으로 카메라의 좌표축들이 직교하도록 카메라 변환 행렬을 갱신한다. 
-	//카메라의 z-축 벡터를 정규화한다.
-	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
-	//카메라의 z-축과 y-축에 수직인 벡터를 x-축으로 설정한다.
-	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
-	//카메라의 z-축과 x-축에 수직인 벡터를 y-축으로 설정한다.
-	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
-	m_xmf4x4View._11 = m_xmf3Right.x; m_xmf4x4View._12 = m_xmf3Up.x; m_xmf4x4View._13 =
-		m_xmf3Look.x;
-	m_xmf4x4View._21 = m_xmf3Right.y; m_xmf4x4View._22 = m_xmf3Up.y; m_xmf4x4View._23 =
-		m_xmf3Look.y;
-	m_xmf4x4View._31 = m_xmf3Right.z; m_xmf4x4View._32 = m_xmf3Up.z; m_xmf4x4View._33 =
-		m_xmf3Look.z;
-	m_xmf4x4View._41 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Right);
-	m_xmf4x4View._42 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Up);
-	m_xmf4x4View._43 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Look);
-}
-
-void CCamera::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
-	* pd3dCommandList)
-{
 }
 
 void CCamera::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -135,8 +43,64 @@ void CCamera::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4Projection, 16);
 }
 
-void CCamera::ReleaseShaderVariables()
+void CCamera::GenerateViewMatrix()
 {
+	// 카메라 변환 행렬을 생성한다.
+	// 카메라의 위치 벡터, 카메라가 바라보는 지점, 카메라의 Up 벡터(로컬 y-축 벡터)를
+	// 파라메터로 사용하는 XMMatrixLookAtLH() 함수를 사용한다.
+	m_xmf4x4View = Matrix4x4::LookAtLH(m_xmf3Position, m_xmf3LookAtWorld, m_xmf3Up);
+}
+
+void CCamera::GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFLOAT3 xmf3Up)
+{
+	m_xmf3Position = xmf3Position;
+	m_xmf3LookAtWorld = xmf3LookAt;
+	m_xmf3Up = xmf3Up;
+
+	GenerateViewMatrix();
+}
+
+void CCamera::RegenerateViewMatrix()
+{
+	// 카메라의 z-축을 기준으로 카메라의 좌표축들이 직교하도록 카메라 변환 행렬을 갱신한다.
+	// 카메라의 z-축 벡터를 정규화한다.
+	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
+
+	// 카메라의 z-축과 y-축에 수직인 벡터를 x-축으로 설정한다.
+	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
+
+	// 카메라의 z-축과 x-축에 수직인 벡터를 y-축으로 설정한다.
+	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+
+	m_xmf4x4View._11 = m_xmf3Right.x; m_xmf4x4View._12 = m_xmf3Up.x; m_xmf4x4View._13 = m_xmf3Look.x;
+	m_xmf4x4View._21 = m_xmf3Right.y; m_xmf4x4View._22 = m_xmf3Up.y; m_xmf4x4View._23 = m_xmf3Look.y;
+	m_xmf4x4View._31 = m_xmf3Right.z; m_xmf4x4View._32 = m_xmf3Up.z; m_xmf4x4View._33 = m_xmf3Look.z;
+	m_xmf4x4View._41 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Right);
+	m_xmf4x4View._42 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Up);
+	m_xmf4x4View._43 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Look);
+}
+
+void CCamera::GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlaneDistance, float fAspectRatio, float fFOVAngle)
+{
+	m_xmf4x4Projection = Matrix4x4::PerspectiveFovLH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
+}
+
+void CCamera::SetViewport(int xTopLeft, int yTopLeft, int nWidth, int nHeight, float fMinZ, float fMaxZ)
+{
+	m_d3dViewport.TopLeftX = float(xTopLeft);
+	m_d3dViewport.TopLeftY = float(yTopLeft);
+	m_d3dViewport.Width = float(nWidth);
+	m_d3dViewport.Height = float(nHeight);
+	m_d3dViewport.MinDepth = fMinZ;
+	m_d3dViewport.MaxDepth = fMaxZ;
+}
+
+void CCamera::SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom)
+{
+	m_d3dScissorRect.left = xLeft;
+	m_d3dScissorRect.top = yTop;
+	m_d3dScissorRect.right = xRight;
+	m_d3dScissorRect.bottom = yBottom;
 }
 
 void CCamera::SetViewportsAndScissorRects(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -145,12 +109,149 @@ void CCamera::SetViewportsAndScissorRects(ID3D12GraphicsCommandList* pd3dCommand
 	pd3dCommandList->RSSetScissorRects(1, &m_d3dScissorRect);
 }
 
-CSpaceShipCamera::CSpaceShipCamera(CCamera* pCamera) : CCamera(pCamera)
+void CCamera::SetPlayer(CPlayer* pPlayer)
+{
+	m_pPlayer = pPlayer;
+}
+
+CPlayer* CCamera::GetPlayer()
+{
+	return m_pPlayer;
+}
+
+void CCamera::SetMode(DWORD nMode)
+{
+	m_nMode = nMode;
+
+}
+DWORD CCamera::GetMode()
+{
+	return m_nMode;
+}
+
+void CCamera::SetPosition(XMFLOAT3 xmf3Position)
+{
+	m_xmf3Position = xmf3Position;
+}
+
+XMFLOAT3& CCamera::GetPosition()
+{
+	return m_xmf3Position;
+}
+
+void CCamera::SetLookAtPosition(XMFLOAT3 xmf3LookAtWorld)
+{
+	m_xmf3LookAtWorld = xmf3LookAtWorld;
+}
+
+XMFLOAT3& CCamera::GetLookAtPosition()
+{
+	return m_xmf3LookAtWorld;
+}
+
+XMFLOAT3& CCamera::GetRightVector()
+{
+	return m_xmf3Right;
+}
+
+XMFLOAT3& CCamera::GetUpVector()
+{
+	return m_xmf3Up;
+}
+
+XMFLOAT3& CCamera::GetLookVector()
+{
+	return m_xmf3Look;
+}
+
+float& CCamera::GetPitch()
+{
+	return m_fPitch;
+}
+
+float& CCamera::GetRoll()
+{
+	return m_fRoll;
+}
+
+float& CCamera::GetYaw()
+{
+	return m_fYaw;
+}
+
+void CCamera::SetOffset(XMFLOAT3 xmf3Offset)
+{
+	m_xmf3Offset = xmf3Offset;
+}
+XMFLOAT3& CCamera::GetOffset()
+{
+	return m_xmf3Offset;
+}
+
+void CCamera::SetTimeLag(float fTimeLag)
+{
+	m_fTimeLag = fTimeLag;
+}
+float CCamera::GetTimeLag()
+{
+	return m_fTimeLag;
+}
+
+XMFLOAT4X4 CCamera::GetViewMatrix()
+{
+	return m_xmf4x4View;
+}
+
+XMFLOAT4X4 CCamera::GetProjectionMatrix()
+{
+	return m_xmf4x4Projection;
+}
+
+D3D12_VIEWPORT CCamera::GetViewport()
+{
+	return m_d3dViewport;
+}
+
+D3D12_RECT CCamera::GetScissorRect()
+{
+	return m_d3dScissorRect;
+}
+
+void CCamera::Move(const XMFLOAT3& xmf3Shift)
+{
+	m_xmf3Position.x += xmf3Shift.x;
+	m_xmf3Position.y += xmf3Shift.y;
+	m_xmf3Position.z += xmf3Shift.z;
+}
+
+void CCamera::Rotate(float fPitch, float fYaw, float fRoll)
+{
+
+}
+
+void CCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
+{
+
+}
+
+void CCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
+{
+
+}
+
+
+
+CSpaceShipCamera::CSpaceShipCamera(CCamera* pCamera) :
+	CCamera(pCamera)
 {
 	m_nMode = SPACESHIP_CAMERA;
 }
 
-//스페이스-쉽 카메라를 플레이어의 로컬 x-축(Right), y-축(Up), z-축(Look)을 기준으로 회전하는 함수이다. 
+CSpaceShipCamera::~CSpaceShipCamera()
+{
+
+}
+
 void CSpaceShipCamera::Rotate(float x, float y, float z)
 {
 	if (m_pPlayer && (x != 0.0f))
@@ -201,14 +302,20 @@ void CSpaceShipCamera::Rotate(float x, float y, float z)
 }
 
 
-CFirstPersonCamera::CFirstPersonCamera(CCamera* pCamera) : CCamera(pCamera)
+
+CFirstPersonCamera::CFirstPersonCamera(CCamera* pCamera) :
+	CCamera(pCamera)
 {
 	m_nMode = FIRST_PERSON_CAMERA;
+
 	if (pCamera)
 	{
-		/*1인칭 카메라로 변경하기 이전의 카메라가 스페이스-쉽 카메라이면 카메라의 Up 벡터를 월드좌표의 y-축이 되도록
-		한다. 이것은 스페이스-쉽 카메라의 로컬 y-축 벡터가 어떤 방향이든지 1인칭 카메라(대부분 사람인 경우)의 로컬 y축 벡터가 월드좌표의 y-축이 되도록 즉, 똑바로 서있는 형태로 설정한다는 의미이다. 그리고 로컬 x-축 벡터와 로컬 z-축 벡터의 y-좌표가 0.0f가 되도록 한다. 이것은 다음 그림과 같이 로컬 x-축 벡터와 로컬 z-축 벡터를 xz-평면(지
-		면)으로 투영하는 것을 의미한다. 즉, 1인칭 카메라의 로컬 x-축 벡터와 로컬 z-축 벡터는 xz-평면에 평행하다.*/
+		// 1인칭 카메라로 변경하기 이전의 카메라가 스페이스-쉽 카메라이면 카메라의 Up 벡터를 월드좌표의 y-축이 되도록 한다.
+		// 이것은 스페이스-쉽 카메라의 로컬 y-축 벡터가 어떤 방향이든지 1인칭 카메라(대부분 사람인 경우)의 로컬 y-축 벡터가
+		// 월드좌표의 y-축이 되도록 즉, 똑바로 서있는 형태로 설정한다는 의미이다.
+		// 그리고 로컬 x-축 벡터와 로컬 z-축 벡터의 y-좌표가 0.0f가 되도록 한다.
+		// 이것은 로컬 x-축 벡터와 로컬 z-축 벡터를 xz-평면(지면)으로 투영하는 것을 의미한다.
+		// 즉, 1인칭 카메라의 로컬 x-축 벡터와 로컬 z-축 벡터는 xz-평면에 평행하다.
 		if (pCamera->GetMode() == SPACESHIP_CAMERA)
 		{
 			m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
@@ -220,6 +327,10 @@ CFirstPersonCamera::CFirstPersonCamera(CCamera* pCamera) : CCamera(pCamera)
 	}
 }
 
+CFirstPersonCamera::~CFirstPersonCamera()
+{
+
+}
 
 void CFirstPersonCamera::Rotate(float x, float y, float z)
 {
@@ -264,15 +375,21 @@ void CFirstPersonCamera::Rotate(float x, float y, float z)
 	}
 }
 
-CThirdPersonCamera::CThirdPersonCamera(CCamera* pCamera) : CCamera(pCamera)
+
+
+CThirdPersonCamera::CThirdPersonCamera(CCamera* pCamera) :
+	CCamera(pCamera)
 {
 	m_nMode = THIRD_PERSON_CAMERA;
+
 	if (pCamera)
 	{
-		/*3인칭 카메라로 변경하기 이전의 카메라가 스페이스-쉽 카메라이면 카메라의 Up 벡터를 월드좌표의 y-축이 되도록
-		한다. 이것은 스페이스-쉽 카메라의 로컬 y-축 벡터가 어떤 방향이든지 3인칭 카메라(대부분 사람인 경우)의 로컬 y-
-		축 벡터가 월드좌표의 y-축이 되도록 즉, 똑바로 서있는 형태로 설정한다는 의미이다. 그리고 로컬 x-축 벡터와 로컬 z-축 벡터의 y-좌표가 0.0f가 되도록 한다. 이것은 로컬 x-축 벡터와 로컬 z-축 벡터를 xz-평면(지면)으로 투영하는
-		것을 의미한다. 즉, 3인칭 카메라의 로컬 x-축 벡터와 로컬 z-축 벡터는 xz-평면에 평행하다.*/
+		// 3인칭 카메라로 변경하기 이전의 카메라가 스페이스-쉽 카메라이면 카메라의 Up 벡터를 월드좌표의 y-축이 되도록 한다.
+		// 이것은 스페이스-쉽 카메라의 로컬 y-축 벡터가 어떤 방향이든지 3인칭 카메라(대부분 사람인 경우)의 로컬 y-축 벡터가
+		// 월드좌표의 y-축이 되도록 즉, 똑바로 서있는 형태로 설정한다는 의미이다.
+		// 그리고 로컬 x-축 벡터와 로컬 z-축 벡터의 y-좌표가 0.0f가 되도록 한다.
+		// 이것은 로컬 x-축 벡터와 로컬 z-축 벡터를 xz-평면(지면)으로 투영하는 것을 의미한다.
+		// 즉, 3인칭 카메라의 로컬 x-축 벡터와 로컬 z-축 벡터는 xz-평면에 평행하다.
 		if (pCamera->GetMode() == SPACESHIP_CAMERA)
 		{
 			m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
@@ -284,11 +401,13 @@ CThirdPersonCamera::CThirdPersonCamera(CCamera* pCamera) : CCamera(pCamera)
 	}
 }
 
+CThirdPersonCamera::~CThirdPersonCamera()
+{
 
+}
 
 void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
-{
-	/*플레이어가 있으면 플레이어의 회전에 따라 3인칭 카메라도 회전해야 한다. */
+{	/*플레이어가 있으면 플레이어의 회전에 따라 3인칭 카메라도 회전해야 한다. */
 	if (m_pPlayer)
 	{
 		XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
@@ -326,7 +445,6 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 		}
 	}
 }
-
 
 void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 {

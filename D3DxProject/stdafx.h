@@ -27,6 +27,9 @@
 
 #include <DXGIDebug.h>
 
+#include <fstream>
+#include <string>
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 using namespace std;
@@ -42,6 +45,7 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "winmm.lib")
 #define FRAME_BUFFER_WIDTH 640
 #define FRAME_BUFFER_HEIGHT 480
+#define _CRT_SECURE_NO_WARNINGS
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
 /*정점의 색상을 무작위로(Random) 설정하기 위해 사용한다. 각 정점의 색상은 난수(Random Number)를 생성하여 지정한다.*/
