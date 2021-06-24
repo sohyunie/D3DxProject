@@ -385,6 +385,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			// "F9" 키가 눌려지면 윈도우 모드와 전체화면 모드의 전환을 처리한다. 
 			ChangeSwapChainState();
 			break;
+		case 'q':
+		case 'Q':
+			exit(0);
+			break;
 		default:
 			break;
 		}
@@ -468,8 +472,7 @@ void CGameFramework::ProcessInput()
 	{
 		if (cxDelta || cyDelta)
 		{
-			// cxDelta는 y-축의 회전을 나타내고 cyDelta는 x-축의 회전을 나타낸다.
-			// 오른쪽 마우스 버튼이 눌려진 경우 cxDelta는 z-축의 회전을 나타낸다.
+
 			if (pKeyBuffer[VK_RBUTTON] & 0xF0)
 			{
 				m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
@@ -480,11 +483,10 @@ void CGameFramework::ProcessInput()
 			}
 		}
 
-		// 플레이어를 dwDirection 방향으로 이동한다(실제로는 속도 벡터를 변경한다).
-		// 이동 거리는 시간에 비례하도록 한다. 플레이어의 이동 속력은 (50/초)로 가정한다.
 		if (dwDirection)
 		{
-			m_pPlayer->Move(dwDirection, 200.0f * m_GameTimer.GetTimeElapsed(), false);
+			if(!m_pPlayer->isDie)
+				m_pPlayer->Move(dwDirection, 200.0f * m_GameTimer.GetTimeElapsed(), false);
 		}
 	}
 
@@ -594,7 +596,7 @@ void CGameFramework::FrameAdvance()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
-	float pfClearColor[4] = { 0.3f, 0.8f, 0.3f, 1.0f };
+	float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	// 원하는 색상으로 렌더 타겟(뷰)을 지운다.
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);

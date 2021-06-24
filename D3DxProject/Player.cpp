@@ -111,29 +111,17 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 		XMFLOAT3 xmf3Shift{};
 		
 		if (dwDirection & DIR_FORWARD)
-		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-		}
 		if (dwDirection & DIR_BACKWARD)
-		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
-		}
 		if (dwDirection & DIR_RIGHT)
-		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
-		}
 		if (dwDirection & DIR_LEFT)
-		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
-		}
 		if (dwDirection & DIR_UP)
-		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
-		}
 		if (dwDirection & DIR_DOWN)
-		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
-		}
 		if (!this->isDie)
 			Move(xmf3Shift, bUpdateVelocity);
 	}
@@ -539,10 +527,6 @@ void CTerrainPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 
 void CTerrainPlayer::Shoot()
 {
-	XMFLOAT3 targetPos;
-	XMFLOAT3 upVector = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	//LookAt(targetPos, upVector);
-
 	CBulletObject* pBulletObject = NULL;
 	for (int i = 0; i < 50; i++)
 	{

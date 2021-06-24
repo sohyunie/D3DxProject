@@ -38,5 +38,5 @@ VS_OUTPUT VSDiffused(VS_INPUT input)
 
 float4 PSDiffused(VS_OUTPUT input) : SV_TARGET
 {
-	return(input.color * 0.8);
+	return(input.color * 1.4);
 }
